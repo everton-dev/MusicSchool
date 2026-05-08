@@ -1,0 +1,637 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en-US" datatype="plaintext" original="ng2.template" target-language="en-GB">
+    <body>
+      <trans-unit id="appTitle" datatype="html">
+        <source>Music School</source>
+        <target>Music School</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">94,97</context>
+        </context-group>
+        <note priority="1" from="description">Main product name</note>
+        <note priority="1" from="meaning">Application title</note>
+      </trans-unit>
+      <trans-unit id="primaryNavigationLabel" datatype="html">
+        <source>Primary navigation</source>
+        <target>Primary navigation</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">97</context>
+        </context-group>
+        <note priority="1" from="description">Navigation landmark label</note>
+        <note priority="1" from="meaning">Primary navigation</note>
+      </trans-unit>
+      <trans-unit id="openNavigationLabel" datatype="html">
+        <source>Open navigation</source>
+        <target>Open navigation</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">109</context>
+        </context-group>
+        <note priority="1" from="description">Button label for navigation drawer</note>
+        <note priority="1" from="meaning">Open navigation</note>
+      </trans-unit>
+      <trans-unit id="workspaceTitle" datatype="html">
+        <source>Operations workspace</source>
+        <target>Operations workspace</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">112,115</context>
+        </context-group>
+        <note priority="1" from="description">Current workspace label</note>
+        <note priority="1" from="meaning">Toolbar title</note>
+      </trans-unit>
+      <trans-unit id="roleSelectorLabel" datatype="html">
+        <source>Role</source>
+        <target>Role</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">116,117</context>
+        </context-group>
+        <note priority="1" from="description">Active role selector</note>
+        <note priority="1" from="meaning">Role selector label</note>
+      </trans-unit>
+      <trans-unit id="selectedRoleLabel" datatype="html">
+        <source>Selected role</source>
+        <target>Selected role</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">117</context>
+        </context-group>
+        <note priority="1" from="description">Role selector accessibility label</note>
+        <note priority="1" from="meaning">Selected role</note>
+      </trans-unit>
+      <trans-unit id="languageSelectorLabel" datatype="html">
+        <source>Language</source>
+        <target>Language</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">125,128</context>
+        </context-group>
+        <note priority="1" from="description">Active language selector</note>
+        <note priority="1" from="meaning">Language selector label</note>
+      </trans-unit>
+      <trans-unit id="selectedLanguageLabel" datatype="html">
+        <source>Selected language</source>
+        <target>Selected language</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">129,130</context>
+        </context-group>
+        <note priority="1" from="description">Language selector accessibility label</note>
+        <note priority="1" from="meaning">Selected language</note>
+      </trans-unit>
+      <trans-unit id="accountMenuLabel" datatype="html">
+        <source>Account menu</source>
+        <target>Account menu</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">137</context>
+        </context-group>
+        <note priority="1" from="description">User account menu button</note>
+        <note priority="1" from="meaning">Account menu</note>
+      </trans-unit>
+      <trans-unit id="tenantContextLabel" datatype="html">
+        <source>Lisbon central school</source>
+        <target>Lisbon central school</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">145,146</context>
+        </context-group>
+        <note priority="1" from="description">Small label above dashboard title</note>
+        <note priority="1" from="meaning">Tenant context label</note>
+      </trans-unit>
+      <trans-unit id="dashboardHeading" datatype="html">
+        <source>School operations</source>
+        <target>School operations</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">146,147</context>
+        </context-group>
+        <note priority="1" from="description">First dashboard heading</note>
+        <note priority="1" from="meaning">Dashboard heading</note>
+      </trans-unit>
+      <trans-unit id="dashboardIntro" datatype="html">
+        <source> Coordinate individual lessons, family billing, teacher resources, and student roadmap progress from one focused workspace. </source>
+        <target> Coordinate individual lessons, family billing, teacher resources, and student roadmap progress from one focused workspace. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">148,152</context>
+        </context-group>
+        <note priority="1" from="description">Short dashboard description</note>
+        <note priority="1" from="meaning">Dashboard intro</note>
+      </trans-unit>
+      <trans-unit id="uploadResourceAction" datatype="html">
+        <source>Upload resource</source>
+        <target>Upload resource</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">155,158</context>
+        </context-group>
+        <note priority="1" from="description">Button for uploading teaching files</note>
+        <note priority="1" from="meaning">Upload resource action</note>
+      </trans-unit>
+      <trans-unit id="scheduleLessonAction" datatype="html">
+        <source>Schedule lesson</source>
+        <target>Schedule lesson</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">159,164</context>
+        </context-group>
+        <note priority="1" from="description">Button to start scheduling</note>
+        <note priority="1" from="meaning">Primary action</note>
+      </trans-unit>
+      <trans-unit id="operationalMetricsLabel" datatype="html">
+        <source>Operational metrics</source>
+        <target>Operational metrics</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">164</context>
+        </context-group>
+        <note priority="1" from="description">Metrics section accessibility label</note>
+        <note priority="1" from="meaning">Operational metrics</note>
+      </trans-unit>
+      <trans-unit id="todayTabLabel" datatype="html">
+        <source>Today</source>
+        <target>Today</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">175</context>
+        </context-group>
+        <note priority="1" from="description">Dashboard tab for daily schedule</note>
+        <note priority="1" from="meaning">Today tab label</note>
+      </trans-unit>
+      <trans-unit id="schedulePanelTitle" datatype="html">
+        <source>Individual lessons</source>
+        <target>Individual lessons</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">180,181</context>
+        </context-group>
+        <note priority="1" from="description">Title for daily lesson schedule</note>
+        <note priority="1" from="meaning">Schedule panel title</note>
+      </trans-unit>
+      <trans-unit id="schedulePanelSubtitle" datatype="html">
+        <source>Fixed weekly 1-on-1 lessons in local teaching time.</source>
+        <target>Fixed weekly 1-on-1 lessons in local teaching time.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">181,183</context>
+        </context-group>
+        <note priority="1" from="description">Subtitle for fixed weekly lessons</note>
+        <note priority="1" from="meaning">Schedule panel subtitle</note>
+      </trans-unit>
+      <trans-unit id="scheduleFiltersLabel" datatype="html">
+        <source>Schedule filters</source>
+        <target>Schedule filters</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">183</context>
+        </context-group>
+        <note priority="1" from="description">Chip list label</note>
+        <note priority="1" from="meaning">Schedule filters</note>
+      </trans-unit>
+      <trans-unit id="activeLessonsChip" datatype="html">
+        <source>Active</source>
+        <target>Active</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">184,185</context>
+        </context-group>
+        <note priority="1" from="description">Active lessons chip</note>
+        <note priority="1" from="meaning">Schedule filter chip</note>
+      </trans-unit>
+      <trans-unit id="trialLessonsChip" datatype="html">
+        <source>Trial</source>
+        <target>Trial</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">185,187</context>
+        </context-group>
+        <note priority="1" from="description">Trial lessons chip</note>
+        <note priority="1" from="meaning">Schedule filter chip</note>
+      </trans-unit>
+      <trans-unit id="lessonTimeColumn" datatype="html">
+        <source>Time</source>
+        <target>Time</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">191,192</context>
+        </context-group>
+        <note priority="1" from="description">Time column</note>
+        <note priority="1" from="meaning">Lesson table column</note>
+      </trans-unit>
+      <trans-unit id="lessonStudentColumn" datatype="html">
+        <source>Student</source>
+        <target>Student</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">195,196</context>
+        </context-group>
+        <note priority="1" from="description">Student column</note>
+        <note priority="1" from="meaning">Lesson table column</note>
+      </trans-unit>
+      <trans-unit id="lessonTeacherColumn" datatype="html">
+        <source>Teacher</source>
+        <target>Teacher</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">199,200</context>
+        </context-group>
+        <note priority="1" from="description">Teacher column</note>
+        <note priority="1" from="meaning">Lesson table column</note>
+      </trans-unit>
+      <trans-unit id="lessonInstrumentColumn" datatype="html">
+        <source>Instrument</source>
+        <target>Instrument</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">203,204</context>
+        </context-group>
+        <note priority="1" from="description">Instrument column</note>
+        <note priority="1" from="meaning">Lesson table column</note>
+      </trans-unit>
+      <trans-unit id="lessonStatusColumn" datatype="html">
+        <source>Status</source>
+        <target>Status</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">207,208</context>
+        </context-group>
+        <note priority="1" from="description">Status column</note>
+        <note priority="1" from="meaning">Lesson table column</note>
+      </trans-unit>
+      <trans-unit id="quickScheduleTitle" datatype="html">
+        <source>Quick scheduling</source>
+        <target>Quick scheduling</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">217,219</context>
+        </context-group>
+        <note priority="1" from="description">Title for scheduling form</note>
+        <note priority="1" from="meaning">Quick schedule title</note>
+      </trans-unit>
+      <trans-unit id="studentFieldLabel" datatype="html">
+        <source>Student</source>
+        <target>Student</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">220,222</context>
+        </context-group>
+        <note priority="1" from="description">Scheduling form student field</note>
+        <note priority="1" from="meaning">Student field label</note>
+      </trans-unit>
+      <trans-unit id="teacherFieldLabel" datatype="html">
+        <source>Teacher</source>
+        <target>Teacher</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">224,226</context>
+        </context-group>
+        <note priority="1" from="description">Scheduling form teacher field</note>
+        <note priority="1" from="meaning">Teacher field label</note>
+      </trans-unit>
+      <trans-unit id="instrumentFieldLabel" datatype="html">
+        <source>Instrument</source>
+        <target>Instrument</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">228,230</context>
+        </context-group>
+        <note priority="1" from="description">Scheduling form instrument field</note>
+        <note priority="1" from="meaning">Instrument field label</note>
+      </trans-unit>
+      <trans-unit id="startTimeFieldLabel" datatype="html">
+        <source>Start time</source>
+        <target>Start time</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">236,238</context>
+        </context-group>
+        <note priority="1" from="description">Scheduling form time field</note>
+        <note priority="1" from="meaning">Start time field label</note>
+      </trans-unit>
+      <trans-unit id="createLessonAction" datatype="html">
+        <source>Create fixed lesson</source>
+        <target>Create fixed lesson</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">242,245</context>
+        </context-group>
+        <note priority="1" from="description">Scheduling form submit button</note>
+        <note priority="1" from="meaning">Create lesson action</note>
+      </trans-unit>
+      <trans-unit id="familiesTabLabel" datatype="html">
+        <source>Families</source>
+        <target>Families</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">248</context>
+        </context-group>
+        <note priority="1" from="description">Dashboard tab for family groups</note>
+        <note priority="1" from="meaning">Families tab label</note>
+      </trans-unit>
+      <trans-unit id="familiesPanelTitle" datatype="html">
+        <source>Family groups</source>
+        <target>Family groups</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">252,253</context>
+        </context-group>
+        <note priority="1" from="description">Title for guardian family table</note>
+        <note priority="1" from="meaning">Families panel title</note>
+      </trans-unit>
+      <trans-unit id="familiesPanelSubtitle" datatype="html">
+        <source>Guardians can manage and pay for multiple students.</source>
+        <target>Guardians can manage and pay for multiple students.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">253,256</context>
+        </context-group>
+        <note priority="1" from="description">Subtitle for guardian payer table</note>
+        <note priority="1" from="meaning">Families panel subtitle</note>
+      </trans-unit>
+      <trans-unit id="addFamilyAction" datatype="html">
+        <source>Add family</source>
+        <target>Add family</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">257,261</context>
+        </context-group>
+        <note priority="1" from="description">Button for creating family group</note>
+        <note priority="1" from="meaning">Add family action</note>
+      </trans-unit>
+      <trans-unit id="familyGuardianColumn" datatype="html">
+        <source>Guardian</source>
+        <target>Guardian</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">263,264</context>
+        </context-group>
+        <note priority="1" from="description">Guardian column</note>
+        <note priority="1" from="meaning">Family table column</note>
+      </trans-unit>
+      <trans-unit id="familyStudentsColumn" datatype="html">
+        <source>Students</source>
+        <target>Students</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">267,268</context>
+        </context-group>
+        <note priority="1" from="description">Students column</note>
+        <note priority="1" from="meaning">Family table column</note>
+      </trans-unit>
+      <trans-unit id="familyPayerStatusColumn" datatype="html">
+        <source>Payer status</source>
+        <target>Payer status</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">271,272</context>
+        </context-group>
+        <note priority="1" from="description">Payer status column</note>
+        <note priority="1" from="meaning">Family table column</note>
+      </trans-unit>
+      <trans-unit id="familyNextActionColumn" datatype="html">
+        <source>Next action</source>
+        <target>Next action</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">275,276</context>
+        </context-group>
+        <note priority="1" from="description">Next action column</note>
+        <note priority="1" from="meaning">Family table column</note>
+      </trans-unit>
+      <trans-unit id="curriculumTabLabel" datatype="html">
+        <source>Curriculum</source>
+        <target>Curriculum</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">285</context>
+        </context-group>
+        <note priority="1" from="description">Dashboard tab for curriculum</note>
+        <note priority="1" from="meaning">Curriculum tab label</note>
+      </trans-unit>
+      <trans-unit id="paymentsTabLabel" datatype="html">
+        <source>Payments</source>
+        <target>Payments</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">302</context>
+        </context-group>
+        <note priority="1" from="description">Dashboard tab for payments</note>
+        <note priority="1" from="meaning">Payments tab label</note>
+      </trans-unit>
+      <trans-unit id="paymentsPanelTitle" datatype="html">
+        <source>Manual payment queue</source>
+        <target>Manual payment queue</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">306,307</context>
+        </context-group>
+        <note priority="1" from="description">Title for manual payments queue</note>
+        <note priority="1" from="meaning">Payments panel title</note>
+      </trans-unit>
+      <trans-unit id="paymentsPanelSubtitle" datatype="html">
+        <source>Track MBWay and bank transfer confirmations for Portugal.</source>
+        <target>Track MBWay and bank transfer confirmations for Portugal.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">307,310</context>
+        </context-group>
+        <note priority="1" from="description">Subtitle for Portugal payment methods</note>
+        <note priority="1" from="meaning">Payments panel subtitle</note>
+      </trans-unit>
+      <trans-unit id="registerPaymentAction" datatype="html">
+        <source>Register payment</source>
+        <target>Register payment</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">311,315</context>
+        </context-group>
+        <note priority="1" from="description">Button for creating manual payment</note>
+        <note priority="1" from="meaning">Register payment action</note>
+      </trans-unit>
+      <trans-unit id="paymentGuardianColumn" datatype="html">
+        <source>Guardian</source>
+        <target>Guardian</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">317,318</context>
+        </context-group>
+        <note priority="1" from="description">Guardian column</note>
+        <note priority="1" from="meaning">Payment table column</note>
+      </trans-unit>
+      <trans-unit id="paymentStudentColumn" datatype="html">
+        <source>Student</source>
+        <target>Student</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">321,322</context>
+        </context-group>
+        <note priority="1" from="description">Student column</note>
+        <note priority="1" from="meaning">Payment table column</note>
+      </trans-unit>
+      <trans-unit id="paymentMethodColumn" datatype="html">
+        <source>Method</source>
+        <target>Method</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">325,326</context>
+        </context-group>
+        <note priority="1" from="description">Method column</note>
+        <note priority="1" from="meaning">Payment table column</note>
+      </trans-unit>
+      <trans-unit id="paymentAmountColumn" datatype="html">
+        <source>Amount</source>
+        <target>Amount</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">329,330</context>
+        </context-group>
+        <note priority="1" from="description">Amount column</note>
+        <note priority="1" from="meaning">Payment table column</note>
+      </trans-unit>
+      <trans-unit id="paymentStatusColumn" datatype="html">
+        <source>Status</source>
+        <target>Status</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">333,334</context>
+        </context-group>
+        <note priority="1" from="description">Status column</note>
+        <note priority="1" from="meaning">Payment table column</note>
+      </trans-unit>
+      <trans-unit id="dashboardNavLabel" datatype="html">
+        <source>Dashboard</source>
+        <target>Dashboard</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">364</context>
+        </context-group>
+        <note priority="1" from="description">Main dashboard navigation label</note>
+        <note priority="1" from="meaning">Navigation item</note>
+      </trans-unit>
+      <trans-unit id="lessonsNavLabel" datatype="html">
+        <source>Lessons</source>
+        <target>Lessons</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">365</context>
+        </context-group>
+        <note priority="1" from="description">Lessons navigation label</note>
+        <note priority="1" from="meaning">Navigation item</note>
+      </trans-unit>
+      <trans-unit id="familiesNavLabel" datatype="html">
+        <source>Families</source>
+        <target>Families</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">366</context>
+        </context-group>
+        <note priority="1" from="description">Families navigation label</note>
+        <note priority="1" from="meaning">Navigation item</note>
+      </trans-unit>
+      <trans-unit id="curriculumNavLabel" datatype="html">
+        <source>Curriculum</source>
+        <target>Curriculum</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">367</context>
+        </context-group>
+        <note priority="1" from="description">Curriculum navigation label</note>
+        <note priority="1" from="meaning">Navigation item</note>
+      </trans-unit>
+      <trans-unit id="paymentsNavLabel" datatype="html">
+        <source>Payments</source>
+        <target>Payments</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">368</context>
+        </context-group>
+        <note priority="1" from="description">Payments navigation label</note>
+        <note priority="1" from="meaning">Navigation item</note>
+      </trans-unit>
+      <trans-unit id="weeklyLessonsMetric" datatype="html">
+        <source>Weekly lessons</source>
+        <target>Weekly lessons</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">375</context>
+        </context-group>
+        <note priority="1" from="description">Weekly lesson count label</note>
+        <note priority="1" from="meaning">Metric label</note>
+      </trans-unit>
+      <trans-unit id="weeklyLessonsDetail" datatype="html">
+        <source>+12 this month</source>
+        <target>+12 this month</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">375</context>
+        </context-group>
+        <note priority="1" from="description">Weekly lesson comparison detail</note>
+        <note priority="1" from="meaning">Metric detail</note>
+      </trans-unit>
+      <trans-unit id="activeFamiliesMetric" datatype="html">
+        <source>Active families</source>
+        <target>Active families</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">376</context>
+        </context-group>
+        <note priority="1" from="description">Active family count label</note>
+        <note priority="1" from="meaning">Metric label</note>
+      </trans-unit>
+      <trans-unit id="activeFamiliesDetail" datatype="html">
+        <source>118 linked students</source>
+        <target>118 linked students</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">376</context>
+        </context-group>
+        <note priority="1" from="description">Guardian relationship detail</note>
+        <note priority="1" from="meaning">Metric detail</note>
+      </trans-unit>
+      <trans-unit id="openPaymentsMetric" datatype="html">
+        <source>Open payments</source>
+        <target>Open payments</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">377</context>
+        </context-group>
+        <note priority="1" from="description">Open payment count label</note>
+        <note priority="1" from="meaning">Metric label</note>
+      </trans-unit>
+      <trans-unit id="openPaymentsDetail" datatype="html">
+        <source>MBWay and transfer</source>
+        <target>MBWay and transfer</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">377</context>
+        </context-group>
+        <note priority="1" from="description">Manual payment methods detail</note>
+        <note priority="1" from="meaning">Metric detail</note>
+      </trans-unit>
+      <trans-unit id="roadmapResourcesMetric" datatype="html">
+        <source>Roadmap resources</source>
+        <target>Roadmap resources</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">378</context>
+        </context-group>
+        <note priority="1" from="description">Resource count label</note>
+        <note priority="1" from="meaning">Metric label</note>
+      </trans-unit>
+      <trans-unit id="roadmapResourcesDetail" datatype="html">
+        <source>PDF and MP3 files</source>
+        <target>PDF and MP3 files</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">378</context>
+        </context-group>
+        <note priority="1" from="description">Uploaded curriculum files detail</note>
+        <note priority="1" from="meaning">Metric detail</note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

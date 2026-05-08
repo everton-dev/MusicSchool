@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MusicSchool.API/MusicSchool.API.csproj" />
+    <Project Path="src/MusicSchool.Application/MusicSchool.Application.csproj" />
+    <Project Path="src/MusicSchool.Domain/MusicSchool.Domain.csproj" />
+    <Project Path="src/MusicSchool.Infrastructure/MusicSchool.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MusicSchool.IntegrationTests/MusicSchool.IntegrationTests.csproj" />
+    <Project Path="tests/MusicSchool.UnitTests/MusicSchool.UnitTests.csproj" />
+  </Folder>
+</Solution>

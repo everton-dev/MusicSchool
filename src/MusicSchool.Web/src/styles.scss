@@ -1,0 +1,41 @@
+@use '@angular/material' as mat;
+
+$music-school-theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: mat.$azure-palette,
+    tertiary: mat.$green-palette
+  ),
+  typography: (
+    brand-family: 'Roboto',
+    plain-family: 'Roboto'
+  ),
+  density: (
+    scale: 0
+  )
+));
+
+html {
+  color-scheme: light;
+  @include mat.all-component-themes($music-school-theme);
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+  font-family: Roboto, Arial, sans-serif;
+  background: #f7f9fb;
+  color: #17212b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+mat-icon {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+}

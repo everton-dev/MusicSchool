@@ -1,0 +1,15 @@
+bin/
+obj/
+.vs/
+.vscode/
+.angular/
+node_modules/
+dist/
+coverage/
+TestResults/
+*.log
+*.user
+*.suo
+*.rsuser
+*.nupkg
+*.snupkg

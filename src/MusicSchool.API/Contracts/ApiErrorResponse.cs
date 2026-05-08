@@ -1,0 +1,3 @@
+namespace MusicSchool.API.Contracts;
+
+public sealed record ApiErrorResponse(string Code, string Message);
