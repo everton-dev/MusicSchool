@@ -8,11 +8,11 @@ using MusicSchool.Domain.Common;
 namespace MusicSchool.API.Controllers;
 
 [ApiController]
-[Authorize(Policy = AuthConstants.Policies.AdminTeacherOrStudent)]
 [Route("api/students/{studentId:guid}/curriculum")]
 public sealed class StudentCurriculumProgressController(ICurriculumService curriculumService) : ControllerBase
 {
     [HttpGet("progress")]
+    [Authorize(Policy = AuthConstants.Policies.AdminTeacherGuardianOrStudent)]
     [ProducesResponseType<PagedResult<StudentCurriculumProgressDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status404NotFound)]
@@ -30,6 +30,7 @@ public sealed class StudentCurriculumProgressController(ICurriculumService curri
     }
 
     [HttpPut("{curriculumNodeId:guid}/progress")]
+    [Authorize(Policy = AuthConstants.Policies.AdminOrTeacher)]
     [ProducesResponseType<StudentCurriculumProgressDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status404NotFound)]

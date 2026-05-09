@@ -3,6 +3,122 @@
   min-height: 100vh;
 }
 
+.login-page {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 10px;
+  min-height: 100dvh;
+  padding: clamp(12px, 2.5vw, 28px);
+  background:
+    linear-gradient(135deg, rgba(15, 31, 46, 0.94), rgba(19, 111, 99, 0.88)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='720' height='420' viewBox='0 0 720 420'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.16' stroke-width='2'%3E%3Cpath d='M40 96h640M40 124h640M40 152h640M40 180h640M40 208h640'/%3E%3Cpath d='M82 96c34 40 34 72 0 112M146 92v116M146 92c38 8 54 32 12 52'/%3E%3Ccircle cx='430' cy='152' r='17' fill='%23ffffff' fill-opacity='.14'/%3E%3Cpath d='M446 152V78M535 183c42-20 80 2 70 34-10 34-72 34-96 2'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: cover;
+}
+
+.login-shell {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.9fr) minmax(320px, 420px);
+  width: min(980px, 100%);
+  min-height: 500px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 24px 80px rgba(7, 18, 28, 0.28);
+}
+
+.login-brand-panel {
+  position: relative;
+  display: grid;
+  align-content: end;
+  gap: 14px;
+  min-height: 360px;
+  padding: clamp(24px, 4vw, 42px);
+  background: #0f1f2e;
+  color: #eef5f7;
+}
+
+.login-brand-panel h1 {
+  color: #ffffff;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+}
+
+.login-brand-panel p:not(.eyebrow) {
+  max-width: 420px;
+  color: #c9d6df;
+  line-height: 1.6;
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: #62d8c7;
+  color: #0f1f2e;
+}
+
+.brand-mark mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.staff-lines {
+  display: grid;
+  gap: 13px;
+  width: min(340px, 80%);
+  margin-top: 10px;
+}
+
+.staff-lines span {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.login-card {
+  display: grid;
+  align-content: center;
+  gap: 12px;
+  padding: clamp(22px, 4vw, 38px);
+}
+
+.login-language-row {
+  display: flex;
+  justify-content: flex-end;
+  width: min(980px, 100%);
+}
+
+.login-card h2 {
+  font-size: 1.5rem;
+}
+
+.remember-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #344253;
+  font-size: 0.92rem;
+}
+
+.remember-row input {
+  width: 18px;
+  height: 18px;
+  accent-color: #136f63;
+}
+
+.login-error {
+  padding: 10px 12px;
+  border: 1px solid #e1b6b6;
+  border-radius: 8px;
+  background: #fff4f4;
+  color: #8d2525;
+  font-size: 0.9rem;
+}
+
 .app-frame {
   min-height: 100dvh;
   background: #f7f9fb;
@@ -293,6 +409,27 @@ table {
   color: #795100;
 }
 
+.student-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 220px;
+}
+
+.student-token {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid #cfe3df;
+  border-radius: 999px;
+  background: #f4fbf9;
+  color: #174d45;
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .quick-panel {
   align-self: start;
 }
@@ -309,6 +446,68 @@ table {
 
 .teacher-list-layout {
   padding-top: 18px;
+}
+
+.users-layout {
+  display: grid;
+  grid-template-columns: minmax(360px, 0.9fr) minmax(0, 1.2fr);
+  gap: 18px;
+  padding-top: 18px;
+}
+
+.user-editor-panel {
+  display: grid;
+  gap: 16px;
+  align-self: start;
+}
+
+.schedule-picker {
+  display: grid;
+  gap: 12px;
+}
+
+.schedule-picker h3 {
+  margin: 0 0 10px;
+  color: #17212b;
+  font-size: 0.95rem;
+  font-weight: 650;
+}
+
+.slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+.slot-option {
+  display: grid;
+  gap: 4px;
+  min-height: 92px;
+  padding: 12px;
+  border: 1px solid #b9dacd;
+  border-radius: 8px;
+  background: #f4fbf7;
+  color: #174d45;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.slot-option.selected {
+  border-color: #136f63;
+  box-shadow: inset 0 0 0 2px #136f63;
+}
+
+.slot-option.taken {
+  border-color: #d8dde5;
+  background: #f3f5f7;
+  color: #596676;
+  cursor: not-allowed;
+}
+
+.slot-option span,
+.slot-option small {
+  line-height: 1.35;
 }
 
 .teacher-directory-panel {
@@ -441,6 +640,17 @@ table {
   font-weight: 700;
 }
 
+.roadmap-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.roadmap-copy small {
+  color: #596676;
+  line-height: 1.45;
+}
+
 @media (max-width: 1100px) {
   .side-nav {
     width: 232px;
@@ -448,6 +658,10 @@ table {
 
   .content-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .users-layout {
+    grid-template-columns: 1fr;
   }
 
   .teacher-list-item {
@@ -465,6 +679,14 @@ table {
 }
 
 @media (max-width: 900px) {
+  .login-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .login-brand-panel {
+    min-height: 220px;
+  }
+
   .side-nav {
     width: min(82vw, 320px);
   }
@@ -542,6 +764,7 @@ table {
 
   .metrics-grid,
   .content-grid,
+  .users-layout,
   .teacher-list-item,
   .dialog-form-grid,
   .schedule-dialog-grid,
@@ -594,6 +817,23 @@ table {
 }
 
 @media (max-width: 520px) {
+  .login-page {
+    padding: 12px;
+  }
+
+  .login-shell {
+    border-radius: 8px;
+  }
+
+  .login-brand-panel,
+  .login-card {
+    padding: 18px;
+  }
+
+  .login-language-row {
+    justify-content: center;
+  }
+
   .top-bar {
     gap: 8px;
     padding: 8px 12px;

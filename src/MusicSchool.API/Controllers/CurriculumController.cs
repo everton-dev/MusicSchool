@@ -8,12 +8,12 @@ using MusicSchool.Domain.Common;
 namespace MusicSchool.API.Controllers;
 
 [ApiController]
-[Authorize(Policy = AuthConstants.Policies.AdminOrTeacher)]
 [Route("api/curriculum-nodes")]
 public sealed class CurriculumController(ICurriculumService curriculumService) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType<PagedResult<CurriculumNodeDto>>(StatusCodes.Status200OK)]
+    [Authorize(Policy = AuthConstants.Policies.AdminTeacherGuardianOrStudent)]
+    [ProducesResponseType<IReadOnlyCollection<CurriculumNodeSummaryResponse>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> List(
         [FromQuery] Guid? instrumentId = null,
@@ -26,10 +26,11 @@ public sealed class CurriculumController(ICurriculumService curriculumService) :
             new ListCurriculumNodesQuery(instrumentId, parentNodeId, pageNumber, pageSize),
             cancellationToken).ConfigureAwait(false);
 
-        return ToActionResult(result);
+        return ToActionResult(result, page => page.Items.Select(ToSummary).ToArray());
     }
 
     [HttpPost]
+    [Authorize(Policy = AuthConstants.Policies.AdminOrTeacher)]
     [ProducesResponseType<CurriculumNodeDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(CreateCurriculumNodeRequest request, CancellationToken cancellationToken)
@@ -53,6 +54,7 @@ public sealed class CurriculumController(ICurriculumService curriculumService) :
     }
 
     [HttpPost("{curriculumNodeId:guid}/resources")]
+    [Authorize(Policy = AuthConstants.Policies.AdminOrTeacher)]
     [RequestSizeLimit(50_000_000)]
     [ProducesResponseType<CurriculumNodeDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status400BadRequest)]
@@ -82,6 +84,7 @@ public sealed class CurriculumController(ICurriculumService curriculumService) :
     }
 
     [HttpPost("{curriculumNodeId:guid}/resources/download-url")]
+    [Authorize(Policy = AuthConstants.Policies.AdminTeacherGuardianOrStudent)]
     [ProducesResponseType<ResourceDownloadDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status404NotFound)]
@@ -102,5 +105,30 @@ public sealed class CurriculumController(ICurriculumService curriculumService) :
         return result.Error.Code.EndsWith(".NotFound", StringComparison.Ordinal)
             ? NotFound(response)
             : BadRequest(response);
+    }
+
+    private IActionResult ToActionResult<TSource, TResponse>(Result<TSource> result, Func<TSource, TResponse> map)
+    {
+        if (result.IsSuccess)
+        {
+            return Ok(map(result.Value));
+        }
+
+        var response = new ApiErrorResponse(result.Error.Code, result.Error.Message);
+        return result.Error.Code.EndsWith(".NotFound", StringComparison.Ordinal)
+            ? NotFound(response)
+            : BadRequest(response);
+    }
+
+    private static CurriculumNodeSummaryResponse ToSummary(CurriculumNodeDto node)
+    {
+        return new CurriculumNodeSummaryResponse(
+            node.Id,
+            node.InstrumentId,
+            node.ParentNodeId,
+            node.Title,
+            node.Type.ToString(),
+            node.SortOrder,
+            !string.IsNullOrWhiteSpace(node.ResourceFileName));
     }
 }

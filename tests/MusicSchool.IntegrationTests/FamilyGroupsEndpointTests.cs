@@ -48,14 +48,16 @@ public sealed class FamilyGroupsEndpointTests
 
         var listResponse = await client.GetAsync("/api/family-groups?pageNumber=1&pageSize=10");
         listResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        var page = await listResponse.Content.ReadFromJsonAsync<PagedResult<FamilyGroupDto>>();
+        var page = await listResponse.Content.ReadFromJsonAsync<PagedResult<FamilyGroupSummaryResponse>>();
         page!.TotalCount.Should().Be(1);
         page.Items.Single().Id.Should().Be(createdFamilyGroup.Id);
+        page.Items.Single().GuardianCount.Should().Be(1);
+        page.Items.Single().StudentCount.Should().Be(1);
 
         using var otherTenantClient = factory.CreateAuthenticatedClient(UserRole.Admin, Guid.NewGuid());
         var otherTenantListResponse = await otherTenantClient.GetAsync("/api/family-groups?pageNumber=1&pageSize=10");
         otherTenantListResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        var otherTenantPage = await otherTenantListResponse.Content.ReadFromJsonAsync<PagedResult<FamilyGroupDto>>();
+        var otherTenantPage = await otherTenantListResponse.Content.ReadFromJsonAsync<PagedResult<FamilyGroupSummaryResponse>>();
         otherTenantPage!.TotalCount.Should().Be(0);
     }
 

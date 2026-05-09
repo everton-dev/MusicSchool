@@ -25,7 +25,7 @@ public sealed class LessonsEndpointTests
     {
         await using var factory = CreateFactory();
         var seedData = await SeedAsync(factory);
-        using var client = factory.CreateAuthenticatedClient(UserRole.Teacher, seedData.TenantId.Value);
+        using var client = factory.CreateAuthenticatedClient(UserRole.Admin, seedData.TenantId.Value);
 
         var response = await client.PostAsJsonAsync("/api/lessons", CreateRequest(seedData));
 
@@ -38,9 +38,10 @@ public sealed class LessonsEndpointTests
 
         var listResponse = await client.GetAsync($"/api/lessons?teacherId={seedData.TeacherId.Value}&pageNumber=1&pageSize=10");
         listResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        var page = await listResponse.Content.ReadFromJsonAsync<PagedResult<LessonDto>>();
+        var page = await listResponse.Content.ReadFromJsonAsync<PagedResult<LessonSummaryResponse>>();
         page!.TotalCount.Should().Be(1);
         page.Items.Single().Id.Should().Be(lesson.Id);
+        page.Items.Single().Status.Should().Be("Scheduled");
     }
 
     [Fact]
@@ -48,7 +49,7 @@ public sealed class LessonsEndpointTests
     {
         await using var factory = CreateFactory();
         var seedData = await SeedAsync(factory);
-        using var client = factory.CreateAuthenticatedClient(UserRole.Teacher, seedData.TenantId.Value);
+        using var client = factory.CreateAuthenticatedClient(UserRole.Admin, seedData.TenantId.Value);
 
         var firstResponse = await client.PostAsJsonAsync("/api/lessons", CreateRequest(seedData));
         var conflictResponse = await client.PostAsJsonAsync("/api/lessons", CreateRequest(seedData, new TimeOnly(17, 30)));

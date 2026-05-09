@@ -57,8 +57,10 @@ public sealed class CurriculumEndpointTests
 
         var listNodesResponse = await client.GetAsync($"/api/curriculum-nodes?instrumentId={seedData.InstrumentId.Value}");
         listNodesResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        var nodesPage = await listNodesResponse.Content.ReadFromJsonAsync<PagedResult<CurriculumNodeDto>>();
-        nodesPage!.TotalCount.Should().Be(1);
+        var nodes = await listNodesResponse.Content.ReadFromJsonAsync<CurriculumNodeSummaryResponse[]>();
+        nodes.Should().ContainSingle();
+        nodes!.Single().Id.Should().Be(node.Id);
+        nodes.Single().HasResource.Should().BeTrue();
 
         var downloadResponse = await client.PostAsync($"/api/curriculum-nodes/{node.Id}/resources/download-url", content: null);
 

@@ -27,7 +27,7 @@ public sealed class PaymentsEndpointTests
     {
         await using var factory = CreateFactory();
         var seedData = await SeedAsync(factory);
-        using var client = factory.CreateAuthenticatedClient(UserRole.Guardian, seedData.TenantId.Value);
+        using var client = factory.CreateAuthenticatedClient(UserRole.Admin, seedData.TenantId.Value);
 
         var createResponse = await client.PostAsJsonAsync("/api/payments", new CreateManualPaymentRequest(
             seedData.TenantId.Value,
@@ -55,9 +55,10 @@ public sealed class PaymentsEndpointTests
 
         var listResponse = await client.GetAsync($"/api/payments?status=Confirmed&guardianUserId={seedData.GuardianUserId.Value}");
         listResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        var page = await listResponse.Content.ReadFromJsonAsync<PagedResult<PaymentDto>>();
+        var page = await listResponse.Content.ReadFromJsonAsync<PagedResult<PaymentSummaryResponse>>();
         page!.TotalCount.Should().Be(1);
         page.Items.Single().Id.Should().Be(createdPayment.Id);
+        page.Items.Single().Status.Should().Be("Confirmed");
 
         var emailSender = factory.Services.GetRequiredService<IEmailSender>().Should().BeOfType<FakeEmailSender>().Subject;
         emailSender.SentEmails.Should().HaveCount(2);
@@ -69,7 +70,7 @@ public sealed class PaymentsEndpointTests
     {
         await using var factory = CreateFactory();
         var seedData = await SeedAsync(factory, isPrimaryPayer: false);
-        using var client = factory.CreateAuthenticatedClient(UserRole.Guardian, seedData.TenantId.Value);
+        using var client = factory.CreateAuthenticatedClient(UserRole.Admin, seedData.TenantId.Value);
 
         var response = await client.PostAsJsonAsync("/api/payments", new CreateManualPaymentRequest(
             seedData.TenantId.Value,

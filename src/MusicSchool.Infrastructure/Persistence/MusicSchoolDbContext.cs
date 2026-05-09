@@ -59,6 +59,11 @@ public sealed class MusicSchoolDbContext(DbContextOptions<MusicSchoolDbContext> 
         builder.Property(user => user.DisplayName).HasMaxLength(200).IsRequired();
         builder.Property(user => user.Role).HasConversion<string>().HasMaxLength(32).IsRequired();
         builder.Property(user => user.PreferredCulture).HasMaxLength(16).IsRequired();
+        builder.Property(user => user.FullAddress).HasMaxLength(300).IsRequired();
+        builder.Property(user => user.PostalCode).HasMaxLength(20).IsRequired();
+        builder.Property(user => user.DocumentNumber).HasMaxLength(80).IsRequired();
+        builder.Property(user => user.ContactPhone).HasMaxLength(40).IsRequired();
+        builder.Property(user => user.IsActive).IsRequired();
         builder.Property(user => user.CreatedOnUtc).IsRequired();
         builder.HasIndex(user => new { user.TenantId, user.Email }).IsUnique();
     }

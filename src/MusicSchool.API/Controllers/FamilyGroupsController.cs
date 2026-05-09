@@ -8,20 +8,25 @@ using MusicSchool.Domain.Common;
 namespace MusicSchool.API.Controllers;
 
 [ApiController]
-[Authorize(Policy = AuthConstants.Policies.AdminOnly)]
 [Route("api/family-groups")]
 public sealed class FamilyGroupsController(IFamilyGroupService familyGroupService) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType<PagedResult<FamilyGroupDto>>(StatusCodes.Status200OK)]
+    [Authorize(Policy = AuthConstants.Policies.AdminOrGuardian)]
+    [ProducesResponseType<PagedResult<FamilyGroupSummaryResponse>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> List([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20, CancellationToken cancellationToken = default)
     {
         var result = await familyGroupService.ListAsync(new ListFamilyGroupsQuery(pageNumber, pageSize), cancellationToken).ConfigureAwait(false);
-        return ToActionResult(result);
+        return ToActionResult(result, page => new PagedResult<FamilyGroupSummaryResponse>(
+            page.Items.Select(ToSummary).ToArray(),
+            page.PageNumber,
+            page.PageSize,
+            page.TotalCount));
     }
 
     [HttpGet("{familyGroupId:guid}")]
+    [Authorize(Policy = AuthConstants.Policies.AdminOrGuardian)]
     [ProducesResponseType<FamilyGroupDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(Guid familyGroupId, CancellationToken cancellationToken)
@@ -31,6 +36,7 @@ public sealed class FamilyGroupsController(IFamilyGroupService familyGroupServic
     }
 
     [HttpPost]
+    [Authorize(Policy = AuthConstants.Policies.AdminOnly)]
     [ProducesResponseType<FamilyGroupDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(CreateFamilyGroupRequest request, CancellationToken cancellationToken)
@@ -48,6 +54,7 @@ public sealed class FamilyGroupsController(IFamilyGroupService familyGroupServic
     }
 
     [HttpPost("{familyGroupId:guid}/relationships")]
+    [Authorize(Policy = AuthConstants.Policies.AdminOnly)]
     [ProducesResponseType<FamilyGroupDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status404NotFound)]
@@ -66,6 +73,7 @@ public sealed class FamilyGroupsController(IFamilyGroupService familyGroupServic
     }
 
     [HttpPost("{familyGroupId:guid}/primary-payer")]
+    [Authorize(Policy = AuthConstants.Policies.AdminOnly)]
     [ProducesResponseType<FamilyGroupDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status404NotFound)]
@@ -89,5 +97,27 @@ public sealed class FamilyGroupsController(IFamilyGroupService familyGroupServic
         return result.Error.Code.EndsWith(".NotFound", StringComparison.Ordinal)
             ? NotFound(response)
             : BadRequest(response);
+    }
+
+    private IActionResult ToActionResult<TSource, TResponse>(Result<TSource> result, Func<TSource, TResponse> map)
+    {
+        if (result.IsSuccess)
+        {
+            return Ok(map(result.Value));
+        }
+
+        var response = new ApiErrorResponse(result.Error.Code, result.Error.Message);
+        return result.Error.Code.EndsWith(".NotFound", StringComparison.Ordinal)
+            ? NotFound(response)
+            : BadRequest(response);
+    }
+
+    private static FamilyGroupSummaryResponse ToSummary(FamilyGroupDto familyGroup)
+    {
+        return new FamilyGroupSummaryResponse(
+            familyGroup.Id,
+            familyGroup.DisplayName,
+            familyGroup.Relationships.Select(relationship => relationship.GuardianUserId).Distinct().Count(),
+            familyGroup.Relationships.Select(relationship => relationship.StudentId).Distinct().Count());
     }
 }

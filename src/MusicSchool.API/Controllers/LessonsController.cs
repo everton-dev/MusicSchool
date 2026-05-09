@@ -9,12 +9,12 @@ using MusicSchool.Domain.Lessons;
 namespace MusicSchool.API.Controllers;
 
 [ApiController]
-[Authorize(Policy = AuthConstants.Policies.AdminOrTeacher)]
 [Route("api/lessons")]
 public sealed class LessonsController(ILessonSchedulingService lessonSchedulingService) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType<PagedResult<LessonDto>>(StatusCodes.Status200OK)]
+    [Authorize(Policy = AuthConstants.Policies.AdminTeacherGuardianOrStudent)]
+    [ProducesResponseType<PagedResult<LessonSummaryResponse>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> List(
         [FromQuery] Guid? teacherId = null,
@@ -28,10 +28,15 @@ public sealed class LessonsController(ILessonSchedulingService lessonSchedulingS
             new ListLessonsQuery(teacherId, studentId, status, pageNumber, pageSize),
             cancellationToken).ConfigureAwait(false);
 
-        return ToActionResult(result);
+        return ToActionResult(result, page => new PagedResult<LessonSummaryResponse>(
+            page.Items.Select(ToSummary).ToArray(),
+            page.PageNumber,
+            page.PageSize,
+            page.TotalCount));
     }
 
     [HttpGet("{lessonId:guid}")]
+    [Authorize(Policy = AuthConstants.Policies.AdminTeacherGuardianOrStudent)]
     [ProducesResponseType<LessonDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(Guid lessonId, CancellationToken cancellationToken)
@@ -41,6 +46,7 @@ public sealed class LessonsController(ILessonSchedulingService lessonSchedulingS
     }
 
     [HttpPost]
+    [Authorize(Policy = AuthConstants.Policies.AdminOnly)]
     [ProducesResponseType<LessonDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status404NotFound)]
@@ -77,5 +83,32 @@ public sealed class LessonsController(ILessonSchedulingService lessonSchedulingS
         return result.Error.Code.EndsWith(".NotFound", StringComparison.Ordinal)
             ? NotFound(response)
             : BadRequest(response);
+    }
+
+    private IActionResult ToActionResult<TSource, TResponse>(Result<TSource> result, Func<TSource, TResponse> map)
+    {
+        if (result.IsSuccess)
+        {
+            return Ok(map(result.Value));
+        }
+
+        var response = new ApiErrorResponse(result.Error.Code, result.Error.Message);
+        return result.Error.Code.EndsWith(".NotFound", StringComparison.Ordinal)
+            ? NotFound(response)
+            : BadRequest(response);
+    }
+
+    private static LessonSummaryResponse ToSummary(LessonDto lesson)
+    {
+        return new LessonSummaryResponse(
+            lesson.Id,
+            lesson.TeacherId,
+            lesson.StudentId,
+            lesson.InstrumentId,
+            lesson.DayOfWeek.ToString(),
+            lesson.StartTime,
+            lesson.DurationMinutes,
+            lesson.TimeZoneId,
+            lesson.Status.ToString());
     }
 }

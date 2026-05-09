@@ -11,5 +11,6 @@ public static class AuthConstants
         public const string AdminOrTeacher = "AdminOrTeacher";
         public const string AdminOrGuardian = "AdminOrGuardian";
         public const string AdminTeacherOrStudent = "AdminTeacherOrStudent";
+        public const string AdminTeacherGuardianOrStudent = "AdminTeacherGuardianOrStudent";
     }
 }

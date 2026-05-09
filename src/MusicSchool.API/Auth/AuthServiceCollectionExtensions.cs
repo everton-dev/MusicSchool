@@ -30,6 +30,11 @@ public static class AuthServiceCollectionExtensions
                 UserRole.Admin.ToString(),
                 UserRole.Teacher.ToString(),
                 UserRole.Student.ToString()));
+            options.AddPolicy(AuthConstants.Policies.AdminTeacherGuardianOrStudent, policy => policy.RequireRole(
+                UserRole.Admin.ToString(),
+                UserRole.Teacher.ToString(),
+                UserRole.Guardian.ToString(),
+                UserRole.Student.ToString()));
         });
 
         return services;

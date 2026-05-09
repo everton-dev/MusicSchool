@@ -14,7 +14,7 @@ namespace MusicSchool.API.Controllers;
 public sealed class PaymentsController(IPaymentService paymentService) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType<PagedResult<PaymentDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedResult<PaymentSummaryResponse>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> List(
         [FromQuery] Guid? guardianUserId = null,
@@ -28,7 +28,11 @@ public sealed class PaymentsController(IPaymentService paymentService) : Control
             new ListPaymentsQuery(guardianUserId, studentId, status, pageNumber, pageSize),
             cancellationToken).ConfigureAwait(false);
 
-        return ToActionResult(result);
+        return ToActionResult(result, page => new PagedResult<PaymentSummaryResponse>(
+            page.Items.Select(ToSummary).ToArray(),
+            page.PageNumber,
+            page.PageSize,
+            page.TotalCount));
     }
 
     [HttpGet("{paymentId:guid}")]
@@ -41,6 +45,7 @@ public sealed class PaymentsController(IPaymentService paymentService) : Control
     }
 
     [HttpPost]
+    [Authorize(Policy = AuthConstants.Policies.AdminOnly)]
     [ProducesResponseType<PaymentDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status404NotFound)]
@@ -67,6 +72,7 @@ public sealed class PaymentsController(IPaymentService paymentService) : Control
     }
 
     [HttpPost("{paymentId:guid}/confirm")]
+    [Authorize(Policy = AuthConstants.Policies.AdminOnly)]
     [ProducesResponseType<PaymentDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status404NotFound)]
@@ -80,6 +86,7 @@ public sealed class PaymentsController(IPaymentService paymentService) : Control
     }
 
     [HttpPost("{paymentId:guid}/reject")]
+    [Authorize(Policy = AuthConstants.Policies.AdminOnly)]
     [ProducesResponseType<PaymentDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status404NotFound)]
@@ -103,5 +110,31 @@ public sealed class PaymentsController(IPaymentService paymentService) : Control
         return result.Error.Code.EndsWith(".NotFound", StringComparison.Ordinal)
             ? NotFound(response)
             : BadRequest(response);
+    }
+
+    private IActionResult ToActionResult<TSource, TResponse>(Result<TSource> result, Func<TSource, TResponse> map)
+    {
+        if (result.IsSuccess)
+        {
+            return Ok(map(result.Value));
+        }
+
+        var response = new ApiErrorResponse(result.Error.Code, result.Error.Message);
+        return result.Error.Code.EndsWith(".NotFound", StringComparison.Ordinal)
+            ? NotFound(response)
+            : BadRequest(response);
+    }
+
+    private static PaymentSummaryResponse ToSummary(PaymentDto payment)
+    {
+        return new PaymentSummaryResponse(
+            payment.Id,
+            payment.StudentId,
+            payment.GuardianUserId,
+            payment.Amount,
+            payment.Currency,
+            payment.Method.ToString(),
+            payment.Status.ToString(),
+            payment.DueDate);
     }
 }

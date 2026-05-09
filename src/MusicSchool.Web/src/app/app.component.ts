@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, LOCALE_ID, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, LOCALE_ID, OnInit, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,10 +17,25 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { map } from 'rxjs';
+import {
+  MusicSchoolApiService,
+  TeacherScheduleOption,
+  UserRegistrationRequest,
+  UserSummary
+} from './core/api/music-school-api.service';
 
 const text = {
   'en-US': {
     appTitle: 'Music School',
+    loginEyebrow: 'Private school portal',
+    loginTitle: 'Sign in',
+    loginSubtitle: 'Access lessons, payments, curriculum progress, and school operations.',
+    loginEmailLabel: 'Email',
+    loginPasswordLabel: 'Password',
+    loginRememberLabel: 'Keep me signed in',
+    loginAction: 'Sign in',
+    loginError: 'Enter an email and password.',
+    logoutAction: 'Sign out',
     primaryNavigationLabel: 'Primary navigation',
     openNavigationLabel: 'Open navigation',
     workspaceTitle: 'Operations workspace',
@@ -73,9 +88,36 @@ const text = {
     dashboardNavLabel: 'Dashboard',
     lessonsNavLabel: 'Lessons',
     familiesNavLabel: 'Families',
+    usersNavLabel: 'Users',
     teacherRegisterNavLabel: 'Teacher Register',
     curriculumNavLabel: 'Curriculum',
     paymentsNavLabel: 'Payments',
+    usersTabLabel: 'Users',
+    usersPanelTitle: 'Website users',
+    usersPanelSubtitle: 'Create, edit, deactivate, assign households, and link students to teacher slots.',
+    addUserAction: 'Add user',
+    editUserAction: 'Edit user',
+    deactivateUserAction: 'Deactivate user',
+    saveUserAction: 'Save user',
+    userNameColumn: 'Name',
+    userProfileColumn: 'Profile',
+    userContactColumn: 'Contact',
+    userAddressColumn: 'Address',
+    userStatusColumn: 'Status',
+    nameFieldLabel: 'Name',
+    profileFieldLabel: 'Profile',
+    fullAddressFieldLabel: 'Full address',
+    postalCodeFieldLabel: 'Postal code',
+    documentNumberFieldLabel: 'Document number',
+    contactPhoneFieldLabel: 'Contact phone',
+    emailFieldLabel: 'Email',
+    householdFieldLabel: 'Household users',
+    instrumentSearchFieldLabel: 'Instrument search',
+    teacherScheduleOptionsLabel: 'Teacher schedule options',
+    availableSlotStatus: 'Available',
+    takenSlotStatus: 'Taken',
+    activeUserStatus: 'Active',
+    inactiveUserStatus: 'Inactive',
     teachersTabLabel: 'Teachers',
     teacherRegisterTitle: 'Teacher register',
     teacherRegisterSubtitle: 'Register teachers, update teaching details, inactivate profiles, and maintain weekly availability.',
@@ -112,6 +154,7 @@ const text = {
     mondayLabel: 'Monday',
     tuesdayLabel: 'Tuesday',
     wednesdayLabel: 'Wednesday',
+    thursdayLabel: 'Thursday',
     minutes45: '45 min',
     minutes60: '60 min',
     weeklyLessonsMetric: 'Weekly lessons',
@@ -141,6 +184,15 @@ const text = {
   },
   'en-GB': {
     appTitle: 'Music School',
+    loginEyebrow: 'Private school portal',
+    loginTitle: 'Sign in',
+    loginSubtitle: 'Access lessons, payments, curriculum progress, and school operations.',
+    loginEmailLabel: 'Email',
+    loginPasswordLabel: 'Password',
+    loginRememberLabel: 'Keep me signed in',
+    loginAction: 'Sign in',
+    loginError: 'Enter an email and password.',
+    logoutAction: 'Sign out',
     primaryNavigationLabel: 'Primary navigation',
     openNavigationLabel: 'Open navigation',
     workspaceTitle: 'Operations workspace',
@@ -193,9 +245,36 @@ const text = {
     dashboardNavLabel: 'Dashboard',
     lessonsNavLabel: 'Lessons',
     familiesNavLabel: 'Families',
+    usersNavLabel: 'Users',
     teacherRegisterNavLabel: 'Teacher Register',
     curriculumNavLabel: 'Curriculum',
     paymentsNavLabel: 'Payments',
+    usersTabLabel: 'Users',
+    usersPanelTitle: 'Website users',
+    usersPanelSubtitle: 'Create, edit, deactivate, assign households, and link students to teacher slots.',
+    addUserAction: 'Add user',
+    editUserAction: 'Edit user',
+    deactivateUserAction: 'Deactivate user',
+    saveUserAction: 'Save user',
+    userNameColumn: 'Name',
+    userProfileColumn: 'Profile',
+    userContactColumn: 'Contact',
+    userAddressColumn: 'Address',
+    userStatusColumn: 'Status',
+    nameFieldLabel: 'Name',
+    profileFieldLabel: 'Profile',
+    fullAddressFieldLabel: 'Full address',
+    postalCodeFieldLabel: 'Postal code',
+    documentNumberFieldLabel: 'Document number',
+    contactPhoneFieldLabel: 'Contact phone',
+    emailFieldLabel: 'Email',
+    householdFieldLabel: 'Household users',
+    instrumentSearchFieldLabel: 'Instrument search',
+    teacherScheduleOptionsLabel: 'Teacher schedule options',
+    availableSlotStatus: 'Available',
+    takenSlotStatus: 'Taken',
+    activeUserStatus: 'Active',
+    inactiveUserStatus: 'Inactive',
     teachersTabLabel: 'Teachers',
     teacherRegisterTitle: 'Teacher register',
     teacherRegisterSubtitle: 'Register teachers, update teaching details, inactivate profiles, and maintain weekly availability.',
@@ -232,6 +311,7 @@ const text = {
     mondayLabel: 'Monday',
     tuesdayLabel: 'Tuesday',
     wednesdayLabel: 'Wednesday',
+    thursdayLabel: 'Thursday',
     minutes45: '45 min',
     minutes60: '60 min',
     weeklyLessonsMetric: 'Weekly lessons',
@@ -261,6 +341,15 @@ const text = {
   },
   'pt-PT': {
     appTitle: 'Escola de Música',
+    loginEyebrow: 'Portal privado da escola',
+    loginTitle: 'Iniciar sessão',
+    loginSubtitle: 'Aceda a aulas, pagamentos, progresso curricular e operações da escola.',
+    loginEmailLabel: 'Email',
+    loginPasswordLabel: 'Palavra-passe',
+    loginRememberLabel: 'Manter sessão iniciada',
+    loginAction: 'Entrar',
+    loginError: 'Introduza email e palavra-passe.',
+    logoutAction: 'Terminar sessão',
     primaryNavigationLabel: 'Navegação principal',
     openNavigationLabel: 'Abrir navegação',
     workspaceTitle: 'Área de operações',
@@ -313,9 +402,36 @@ const text = {
     dashboardNavLabel: 'Painel',
     lessonsNavLabel: 'Aulas',
     familiesNavLabel: 'Famílias',
+    usersNavLabel: 'Utilizadores',
     teacherRegisterNavLabel: 'Registo de professores',
     curriculumNavLabel: 'Currículo',
     paymentsNavLabel: 'Pagamentos',
+    usersTabLabel: 'Utilizadores',
+    usersPanelTitle: 'Utilizadores do website',
+    usersPanelSubtitle: 'Crie, edite, desative, atribua agregados e associe alunos aos horários dos professores.',
+    addUserAction: 'Adicionar utilizador',
+    editUserAction: 'Editar utilizador',
+    deactivateUserAction: 'Desativar utilizador',
+    saveUserAction: 'Guardar utilizador',
+    userNameColumn: 'Nome',
+    userProfileColumn: 'Perfil',
+    userContactColumn: 'Contacto',
+    userAddressColumn: 'Morada',
+    userStatusColumn: 'Estado',
+    nameFieldLabel: 'Nome',
+    profileFieldLabel: 'Perfil',
+    fullAddressFieldLabel: 'Morada completa',
+    postalCodeFieldLabel: 'Código postal',
+    documentNumberFieldLabel: 'Número do documento',
+    contactPhoneFieldLabel: 'Telefone de contacto',
+    emailFieldLabel: 'Email',
+    householdFieldLabel: 'Utilizadores do agregado',
+    instrumentSearchFieldLabel: 'Pesquisa de instrumento',
+    teacherScheduleOptionsLabel: 'Horários disponíveis',
+    availableSlotStatus: 'Disponível',
+    takenSlotStatus: 'Ocupado',
+    activeUserStatus: 'Ativo',
+    inactiveUserStatus: 'Inativo',
     teachersTabLabel: 'Professores',
     teacherRegisterTitle: 'Registo de professores',
     teacherRegisterSubtitle: 'Registe professores, atualize detalhes de ensino, inative perfis e mantenha a disponibilidade semanal.',
@@ -352,6 +468,7 @@ const text = {
     mondayLabel: 'Segunda-feira',
     tuesdayLabel: 'Terça-feira',
     wednesdayLabel: 'Quarta-feira',
+    thursdayLabel: 'Quinta-feira',
     minutes45: '45 min',
     minutes60: '60 min',
     weeklyLessonsMetric: 'Aulas semanais',
@@ -381,6 +498,15 @@ const text = {
   },
   'pt-BR': {
     appTitle: 'Escola de Música',
+    loginEyebrow: 'Portal privado da escola',
+    loginTitle: 'Entrar',
+    loginSubtitle: 'Acesse aulas, pagamentos, progresso curricular e operações da escola.',
+    loginEmailLabel: 'Email',
+    loginPasswordLabel: 'Senha',
+    loginRememberLabel: 'Manter conectado',
+    loginAction: 'Entrar',
+    loginError: 'Informe email e senha.',
+    logoutAction: 'Sair',
     primaryNavigationLabel: 'Navegação principal',
     openNavigationLabel: 'Abrir navegação',
     workspaceTitle: 'Área de operações',
@@ -433,9 +559,36 @@ const text = {
     dashboardNavLabel: 'Painel',
     lessonsNavLabel: 'Aulas',
     familiesNavLabel: 'Famílias',
+    usersNavLabel: 'Usuários',
     teacherRegisterNavLabel: 'Cadastro de professores',
     curriculumNavLabel: 'Currículo',
     paymentsNavLabel: 'Pagamentos',
+    usersTabLabel: 'Usuários',
+    usersPanelTitle: 'Usuários do site',
+    usersPanelSubtitle: 'Crie, edite, desative, atribua famílias e associe alunos aos horários dos professores.',
+    addUserAction: 'Adicionar usuário',
+    editUserAction: 'Editar usuário',
+    deactivateUserAction: 'Desativar usuário',
+    saveUserAction: 'Salvar usuário',
+    userNameColumn: 'Nome',
+    userProfileColumn: 'Perfil',
+    userContactColumn: 'Contato',
+    userAddressColumn: 'Endereço',
+    userStatusColumn: 'Status',
+    nameFieldLabel: 'Nome',
+    profileFieldLabel: 'Perfil',
+    fullAddressFieldLabel: 'Endereço completo',
+    postalCodeFieldLabel: 'CEP',
+    documentNumberFieldLabel: 'Número do documento',
+    contactPhoneFieldLabel: 'Telefone de contato',
+    emailFieldLabel: 'Email',
+    householdFieldLabel: 'Usuários da família',
+    instrumentSearchFieldLabel: 'Busca por instrumento',
+    teacherScheduleOptionsLabel: 'Horários disponíveis',
+    availableSlotStatus: 'Disponível',
+    takenSlotStatus: 'Ocupado',
+    activeUserStatus: 'Ativo',
+    inactiveUserStatus: 'Inativo',
     teachersTabLabel: 'Professores',
     teacherRegisterTitle: 'Cadastro de professores',
     teacherRegisterSubtitle: 'Cadastre professores, atualize detalhes de ensino, inative perfis e mantenha a disponibilidade semanal.',
@@ -472,6 +625,7 @@ const text = {
     mondayLabel: 'Segunda-feira',
     tuesdayLabel: 'Terça-feira',
     wednesdayLabel: 'Quarta-feira',
+    thursdayLabel: 'Quinta-feira',
     minutes45: '45 min',
     minutes60: '60 min',
     weeklyLessonsMetric: 'Aulas semanais',
@@ -501,6 +655,15 @@ const text = {
   },
   'es-ES': {
     appTitle: 'Escuela de Música',
+    loginEyebrow: 'Portal privado de la escuela',
+    loginTitle: 'Iniciar sesión',
+    loginSubtitle: 'Accede a clases, pagos, progreso curricular y operaciones de la escuela.',
+    loginEmailLabel: 'Email',
+    loginPasswordLabel: 'Contraseña',
+    loginRememberLabel: 'Mantener sesión iniciada',
+    loginAction: 'Entrar',
+    loginError: 'Introduce email y contraseña.',
+    logoutAction: 'Cerrar sesión',
     primaryNavigationLabel: 'Navegación principal',
     openNavigationLabel: 'Abrir navegación',
     workspaceTitle: 'Área de operaciones',
@@ -553,9 +716,36 @@ const text = {
     dashboardNavLabel: 'Panel',
     lessonsNavLabel: 'Clases',
     familiesNavLabel: 'Familias',
+    usersNavLabel: 'Usuarios',
     teacherRegisterNavLabel: 'Registro de profesores',
     curriculumNavLabel: 'Currículo',
     paymentsNavLabel: 'Pagos',
+    usersTabLabel: 'Usuarios',
+    usersPanelTitle: 'Usuarios del sitio',
+    usersPanelSubtitle: 'Crea, edita, desactiva, asigna hogares y vincula estudiantes con horarios docentes.',
+    addUserAction: 'Añadir usuario',
+    editUserAction: 'Editar usuario',
+    deactivateUserAction: 'Desactivar usuario',
+    saveUserAction: 'Guardar usuario',
+    userNameColumn: 'Nombre',
+    userProfileColumn: 'Perfil',
+    userContactColumn: 'Contacto',
+    userAddressColumn: 'Dirección',
+    userStatusColumn: 'Estado',
+    nameFieldLabel: 'Nombre',
+    profileFieldLabel: 'Perfil',
+    fullAddressFieldLabel: 'Dirección completa',
+    postalCodeFieldLabel: 'Código postal',
+    documentNumberFieldLabel: 'Número de documento',
+    contactPhoneFieldLabel: 'Teléfono de contacto',
+    emailFieldLabel: 'Email',
+    householdFieldLabel: 'Usuarios del hogar',
+    instrumentSearchFieldLabel: 'Búsqueda de instrumento',
+    teacherScheduleOptionsLabel: 'Horarios disponibles',
+    availableSlotStatus: 'Disponible',
+    takenSlotStatus: 'Ocupado',
+    activeUserStatus: 'Activo',
+    inactiveUserStatus: 'Inactivo',
     teachersTabLabel: 'Profesores',
     teacherRegisterTitle: 'Registro de profesores',
     teacherRegisterSubtitle: 'Registra profesores, actualiza detalles docentes, desactiva perfiles y mantiene la disponibilidad semanal.',
@@ -592,6 +782,7 @@ const text = {
     mondayLabel: 'Lunes',
     tuesdayLabel: 'Martes',
     wednesdayLabel: 'Miércoles',
+    thursdayLabel: 'Jueves',
     minutes45: '45 min',
     minutes60: '60 min',
     weeklyLessonsMetric: 'Clases semanales',
@@ -625,7 +816,7 @@ type SupportedLocale = keyof typeof text;
 type TranslationKey = keyof typeof text['en-US'];
 type TranslationRecord = Record<TranslationKey, string>;
 type UserRole = 'Admin' | 'Teacher' | 'Guardian' | 'Student';
-type WorkspaceView = 'today' | 'families' | 'teachers' | 'curriculum' | 'payments';
+type WorkspaceView = 'today' | 'families' | 'users' | 'teachers' | 'curriculum' | 'payments';
 
 interface LanguageOption {
   readonly locale: SupportedLocale;
@@ -658,14 +849,17 @@ interface LessonRow {
 
 interface FamilyRow {
   readonly guardian: string;
-  readonly students: string;
+  readonly students: readonly string[];
   readonly payerStatusKey: TranslationKey;
   readonly nextActionKey: TranslationKey;
 }
 
 interface CurriculumNode {
+  readonly student: string;
+  readonly teacher: string;
   readonly titleKey: TranslationKey;
   readonly instrument: string;
+  readonly resource: string;
   readonly progress: number;
   readonly resourcesKey: TranslationKey;
 }
@@ -676,6 +870,50 @@ interface PaymentRow {
   readonly method: string;
   readonly amount: string;
   readonly statusKey: TranslationKey;
+}
+
+interface UserRow {
+  readonly id: string;
+  readonly name: string;
+  readonly profile: UserRole;
+  readonly fullAddress: string;
+  readonly postalCode: string;
+  readonly documentNumber: string;
+  readonly contactPhone: string;
+  readonly email: string;
+  readonly isActive: boolean;
+  readonly householdUserIds: readonly string[];
+  readonly scheduleSlotId?: string;
+}
+
+interface UserDraft {
+  id?: string;
+  name: string;
+  profile: UserRole;
+  fullAddress: string;
+  postalCode: string;
+  documentNumber: string;
+  contactPhone: string;
+  email: string;
+  householdUserIds: string[];
+  instrumentSearch: string;
+  scheduleSlotId?: string;
+}
+
+interface ScheduleSlotOption {
+  readonly id: string;
+  readonly teacherId: string;
+  readonly instrumentId: string;
+  readonly instrument: string;
+  readonly teacher: string;
+  readonly dayOfWeek: number;
+  readonly dayKey: TranslationKey;
+  readonly time: string;
+  readonly durationMinutes: number;
+  readonly durationKey: TranslationKey;
+  readonly timeZoneId: string;
+  readonly isTaken: boolean;
+  readonly assignedStudent?: string;
 }
 
 interface TeacherRow {
@@ -716,6 +954,7 @@ interface TeacherEditorDialogData {
   readonly mode: 'create' | 'update';
   readonly teacher: EditableTeacher;
   readonly schedules: EditableTeacherSchedule[];
+  readonly canManageTeacherProfile: boolean;
   readonly t: TranslationRecord;
 }
 
@@ -739,33 +978,35 @@ interface TeacherEditorDialogResult {
     MatTableModule
   ],
   template: `
-    <h2 mat-dialog-title>{{ data.mode === 'create' ? t.registerTeacherAction : t.updateTeacherAction }}</h2>
+    <h2 mat-dialog-title>{{ canManageTeacherProfile ? (data.mode === 'create' ? t.registerTeacherAction : t.updateTeacherAction) : t.scheduleTitle }}</h2>
 
     <mat-dialog-content class="teacher-dialog-content">
-      <section class="dialog-section">
-        <h3>{{ t.teacherRegisterTitle }}</h3>
-        <div class="dialog-form-grid">
-          <mat-form-field appearance="outline">
-            <mat-label>{{ t.teacherNameFieldLabel }}</mat-label>
-            <input matInput [(ngModel)]="teacher.name">
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>{{ t.teacherEmailFieldLabel }}</mat-label>
-            <input matInput type="email" [(ngModel)]="teacher.email">
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>{{ t.teacherInstrumentsFieldLabel }}</mat-label>
-            <input matInput [(ngModel)]="teacher.instruments">
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>{{ t.teacherStatusFieldLabel }}</mat-label>
-            <mat-select [(ngModel)]="teacher.statusKey">
-              <mat-option value="activeStatus">{{ t.activeStatus }}</mat-option>
-              <mat-option value="inactiveStatus">{{ t.inactiveStatus }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-      </section>
+      @if (canManageTeacherProfile) {
+        <section class="dialog-section">
+          <h3>{{ t.teacherRegisterTitle }}</h3>
+          <div class="dialog-form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t.teacherNameFieldLabel }}</mat-label>
+              <input matInput [(ngModel)]="teacher.name">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t.teacherEmailFieldLabel }}</mat-label>
+              <input matInput type="email" [(ngModel)]="teacher.email">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t.teacherInstrumentsFieldLabel }}</mat-label>
+              <input matInput [(ngModel)]="teacher.instruments">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t.teacherStatusFieldLabel }}</mat-label>
+              <mat-select [(ngModel)]="teacher.statusKey">
+                <mat-option value="activeStatus">{{ t.activeStatus }}</mat-option>
+                <mat-option value="inactiveStatus">{{ t.inactiveStatus }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </section>
+      }
 
       <section class="dialog-section">
         <h3>{{ t.scheduleTitle }}</h3>
@@ -831,10 +1072,12 @@ interface TeacherEditorDialogResult {
 
     <mat-dialog-actions align="end">
       <button mat-button type="button" (click)="dialogRef.close()">{{ t.cancelAction }}</button>
-      <button mat-stroked-button type="button" class="danger-action" (click)="inactivateTeacher()">
-        <mat-icon aria-hidden="true">person_off</mat-icon>
-        <span>{{ t.inactivateTeacherAction }}</span>
-      </button>
+      @if (canManageTeacherProfile) {
+        <button mat-stroked-button type="button" class="danger-action" (click)="inactivateTeacher()">
+          <mat-icon aria-hidden="true">person_off</mat-icon>
+          <span>{{ t.inactivateTeacherAction }}</span>
+        </button>
+      }
       <button mat-flat-button type="button" (click)="save()">
         <mat-icon aria-hidden="true">save</mat-icon>
         <span>{{ t.saveTeacherAction }}</span>
@@ -846,6 +1089,7 @@ export class TeacherEditorDialogComponent {
   readonly data = inject<TeacherEditorDialogData>(MAT_DIALOG_DATA);
   readonly dialogRef = inject<MatDialogRef<TeacherEditorDialogComponent, TeacherEditorDialogResult>>(MatDialogRef);
   readonly t = this.data.t;
+  readonly canManageTeacherProfile = this.data.canManageTeacherProfile;
   readonly scheduleColumns = ['day', 'time', 'duration', 'room', 'status'];
   teacher: EditableTeacher = { ...this.data.teacher };
   scheduleRows: EditableTeacherSchedule[] = this.data.schedules.map((schedule) => ({ ...schedule }));
@@ -918,6 +1162,78 @@ export class TeacherEditorDialogComponent {
     MatToolbarModule
   ],
   template: `
+    @if (!isAuthenticated) {
+      <main class="login-page">
+        <div class="login-language-row">
+          <div class="language-flags" role="group" [attr.aria-label]="t.languageSelectorLabel">
+            @for (language of languages; track language.locale) {
+              <button
+                mat-icon-button
+                type="button"
+                class="flag-button"
+                [class.selected]="selectedLanguage === language.locale"
+                [attr.aria-label]="language.label"
+                [attr.aria-pressed]="selectedLanguage === language.locale"
+                (click)="changeLanguage(language.locale)">
+                <span aria-hidden="true">{{ language.flag }}</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        <section class="login-shell" aria-labelledby="login-title">
+          <article class="login-brand-panel">
+            <div class="brand-mark" aria-hidden="true">
+              <mat-icon>music_note</mat-icon>
+            </div>
+            <p class="eyebrow">{{ t.loginEyebrow }}</p>
+            <h1 id="login-title">{{ t.appTitle }}</h1>
+            <p>{{ t.loginSubtitle }}</p>
+            <div class="staff-lines" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </article>
+
+          <form class="login-card" (ngSubmit)="login()">
+            <div>
+              <p class="eyebrow">{{ t.loginAction }}</p>
+              <h2>{{ t.loginTitle }}</h2>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t.loginEmailLabel }}</mat-label>
+              <input matInput type="email" name="email" autocomplete="email" [(ngModel)]="loginEmail">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t.loginPasswordLabel }}</mat-label>
+              <input matInput [type]="showPassword ? 'text' : 'password'" name="password" autocomplete="current-password" [(ngModel)]="loginPassword">
+              <button mat-icon-button matSuffix type="button" (click)="showPassword = !showPassword" [attr.aria-label]="t.loginPasswordLabel">
+                <mat-icon aria-hidden="true">{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </mat-form-field>
+
+            <label class="remember-row">
+              <input type="checkbox" name="remember" [(ngModel)]="rememberLogin">
+              <span>{{ t.loginRememberLabel }}</span>
+            </label>
+
+            @if (loginErrorVisible) {
+              <p class="login-error">{{ t.loginError }}</p>
+            }
+
+            <button mat-flat-button type="submit" class="wide-action">
+              <mat-icon aria-hidden="true">login</mat-icon>
+              <span>{{ t.loginAction }}</span>
+            </button>
+          </form>
+        </section>
+      </main>
+    } @else {
     <mat-sidenav-container class="app-frame" [hasBackdrop]="isCompactNavigation()">
       <mat-sidenav
         #drawer
@@ -972,8 +1288,8 @@ export class TeacherEditorDialogComponent {
             }
           </div>
 
-          <button mat-icon-button [attr.aria-label]="t.accountMenuLabel">
-            <mat-icon aria-hidden="true">account_circle</mat-icon>
+          <button mat-icon-button type="button" [attr.aria-label]="t.logoutAction" (click)="logout()">
+            <mat-icon aria-hidden="true">logout</mat-icon>
           </button>
         </mat-toolbar>
 
@@ -1029,7 +1345,7 @@ export class TeacherEditorDialogComponent {
                     </mat-chip-set>
                   </div>
 
-                  <table mat-table [dataSource]="lessonRows">
+                  <table mat-table [dataSource]="visibleLessonRows">
                     <ng-container matColumnDef="time">
                       <th mat-header-cell *matHeaderCellDef>{{ t.lessonTimeColumn }}</th>
                       <td mat-cell *matCellDef="let lesson">{{ lesson.time }}</td>
@@ -1099,20 +1415,28 @@ export class TeacherEditorDialogComponent {
                     <h2>{{ t.familiesPanelTitle }}</h2>
                     <p>{{ t.familiesPanelSubtitle }}</p>
                   </div>
-                  <button mat-stroked-button type="button">
-                    <mat-icon aria-hidden="true">group_add</mat-icon>
-                    <span>{{ t.addFamilyAction }}</span>
-                  </button>
+                  @if (canManageFamilies) {
+                    <button mat-stroked-button type="button">
+                      <mat-icon aria-hidden="true">group_add</mat-icon>
+                      <span>{{ t.addFamilyAction }}</span>
+                    </button>
+                  }
                 </div>
 
-                <table mat-table [dataSource]="familyRows">
+                <table mat-table [dataSource]="visibleFamilyRows">
                   <ng-container matColumnDef="guardian">
                     <th mat-header-cell *matHeaderCellDef>{{ t.familyGuardianColumn }}</th>
                     <td mat-cell *matCellDef="let family">{{ family.guardian }}</td>
                   </ng-container>
                   <ng-container matColumnDef="students">
                     <th mat-header-cell *matHeaderCellDef>{{ t.familyStudentsColumn }}</th>
-                    <td mat-cell *matCellDef="let family">{{ family.students }}</td>
+                    <td mat-cell *matCellDef="let family">
+                      <span class="student-chip-list">
+                        @for (student of family.students; track student) {
+                          <span class="student-token">{{ student }}</span>
+                        }
+                      </span>
+                    </td>
                   </ng-container>
                   <ng-container matColumnDef="payerStatus">
                     <th mat-header-cell *matHeaderCellDef>{{ t.familyPayerStatusColumn }}</th>
@@ -1130,23 +1454,156 @@ export class TeacherEditorDialogComponent {
               </mat-tab>
             }
 
+            @if (canSeeView('users')) {
+              <mat-tab [label]="t.usersTabLabel">
+              <section class="users-layout">
+                <article class="panel user-editor-panel">
+                  <div class="panel-header">
+                    <div>
+                      <h2>{{ t.usersPanelTitle }}</h2>
+                      <p>{{ t.usersPanelSubtitle }}</p>
+                    </div>
+                    <button mat-stroked-button type="button" (click)="startNewUser()">
+                      <mat-icon aria-hidden="true">person_add</mat-icon>
+                      <span>{{ t.addUserAction }}</span>
+                    </button>
+                  </div>
+
+                  <div class="dialog-form-grid">
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ t.nameFieldLabel }}</mat-label>
+                      <input matInput [(ngModel)]="userDraft.name">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ t.profileFieldLabel }}</mat-label>
+                      <mat-select [(ngModel)]="userDraft.profile">
+                        @for (role of roles; track role) {
+                          <mat-option [value]="role">{{ role }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ t.fullAddressFieldLabel }}</mat-label>
+                      <input matInput [(ngModel)]="userDraft.fullAddress">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ t.postalCodeFieldLabel }}</mat-label>
+                      <input matInput [(ngModel)]="userDraft.postalCode">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ t.documentNumberFieldLabel }}</mat-label>
+                      <input matInput [(ngModel)]="userDraft.documentNumber">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ t.contactPhoneFieldLabel }}</mat-label>
+                      <input matInput [(ngModel)]="userDraft.contactPhone">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ t.emailFieldLabel }}</mat-label>
+                      <input matInput type="email" [(ngModel)]="userDraft.email">
+                    </mat-form-field>
+                    @if (userDraft.profile === 'Guardian') {
+                      <mat-form-field appearance="outline">
+                        <mat-label>{{ t.householdFieldLabel }}</mat-label>
+                        <mat-select multiple [(ngModel)]="userDraft.householdUserIds">
+                          @for (candidate of householdCandidateRows; track candidate.id) {
+                            <mat-option [value]="candidate.id">{{ candidate.name }} - {{ candidate.profile }}</mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                    }
+                  </div>
+
+                  <section class="schedule-picker">
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ t.instrumentSearchFieldLabel }}</mat-label>
+                      <input matInput [(ngModel)]="userDraft.instrumentSearch" (ngModelChange)="loadScheduleOptions()">
+                    </mat-form-field>
+                    <div>
+                      <h3>{{ t.teacherScheduleOptionsLabel }}</h3>
+                      <div class="slot-grid">
+                        @for (slot of filteredScheduleSlotOptions; track slot.id) {
+                          <button
+                            type="button"
+                            class="slot-option"
+                            [class.selected]="userDraft.scheduleSlotId === slot.id"
+                            [class.taken]="slot.isTaken"
+                            [disabled]="slot.isTaken"
+                            (click)="selectScheduleSlot(slot)">
+                            <strong>{{ slot.instrument }} - {{ slot.teacher }}</strong>
+                            <span>{{ translate(slot.dayKey) }} {{ slot.time }} - {{ translate(slot.durationKey) }}</span>
+                            <small>{{ slot.isTaken ? t.takenSlotStatus + ': ' + slot.assignedStudent : t.availableSlotStatus }}</small>
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  </section>
+
+                  <button mat-flat-button type="button" class="wide-action" (click)="saveUser()">
+                    <mat-icon aria-hidden="true">save</mat-icon>
+                    <span>{{ t.saveUserAction }}</span>
+                  </button>
+                </article>
+
+                <article class="panel full-panel">
+                  <table mat-table [dataSource]="userRows">
+                    <ng-container matColumnDef="name">
+                      <th mat-header-cell *matHeaderCellDef>{{ t.userNameColumn }}</th>
+                      <td mat-cell *matCellDef="let user">
+                        <button mat-button type="button" (click)="editUser(user)">{{ user.name }}</button>
+                      </td>
+                    </ng-container>
+                    <ng-container matColumnDef="profile">
+                      <th mat-header-cell *matHeaderCellDef>{{ t.userProfileColumn }}</th>
+                      <td mat-cell *matCellDef="let user">{{ user.profile }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="contact">
+                      <th mat-header-cell *matHeaderCellDef>{{ t.userContactColumn }}</th>
+                      <td mat-cell *matCellDef="let user">{{ user.email }}<br>{{ user.contactPhone }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="address">
+                      <th mat-header-cell *matHeaderCellDef>{{ t.userAddressColumn }}</th>
+                      <td mat-cell *matCellDef="let user">{{ user.fullAddress }}<br>{{ user.postalCode }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="status">
+                      <th mat-header-cell *matHeaderCellDef>{{ t.userStatusColumn }}</th>
+                      <td mat-cell *matCellDef="let user">
+                        <span class="status-pill" [class.warning]="!user.isActive">
+                          {{ user.isActive ? t.activeUserStatus : t.inactiveUserStatus }}
+                        </span>
+                        <button mat-icon-button type="button" [attr.aria-label]="t.deactivateUserAction" (click)="deactivateUser(user)">
+                          <mat-icon aria-hidden="true">person_off</mat-icon>
+                        </button>
+                      </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="userColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: userColumns;"></tr>
+                  </table>
+                </article>
+              </section>
+              </mat-tab>
+            }
+
             @if (canSeeView('teachers')) {
               <mat-tab [label]="t.teachersTabLabel">
               <section class="teacher-list-layout">
                 <article class="panel teacher-directory-panel">
                   <div class="panel-header">
                     <div>
-                      <h2>{{ t.teacherRegisterTitle }}</h2>
-                      <p>{{ t.teacherRegisterSubtitle }}</p>
+                      <h2>{{ selectedRole === 'Teacher' ? t.scheduleTitle : t.teacherRegisterTitle }}</h2>
+                      <p>{{ selectedRole === 'Teacher' ? t.scheduleSubtitle : t.teacherRegisterSubtitle }}</p>
                     </div>
-                    <button mat-flat-button type="button" (click)="openTeacherDialog()">
-                      <mat-icon aria-hidden="true">person_add</mat-icon>
-                      <span>{{ t.registerTeacherAction }}</span>
-                    </button>
+                    @if (canManageTeachers) {
+                      <button mat-flat-button type="button" (click)="openTeacherDialog()">
+                        <mat-icon aria-hidden="true">person_add</mat-icon>
+                        <span>{{ t.registerTeacherAction }}</span>
+                      </button>
+                    }
                   </div>
 
                   <div class="teacher-list">
-                    @for (teacher of teacherRows; track teacher.email) {
+                    @for (teacher of visibleTeacherRows; track teacher.email) {
                       <button type="button" class="teacher-list-item" (click)="openTeacherDialog(teacher)">
                         <span class="teacher-avatar" aria-hidden="true">{{ teacher.name.slice(0, 1) }}</span>
                         <span class="teacher-summary">
@@ -1171,11 +1628,12 @@ export class TeacherEditorDialogComponent {
             @if (canSeeView('curriculum')) {
               <mat-tab [label]="t.curriculumTabLabel">
               <section class="roadmap-list">
-                @for (node of curriculumNodes; track node.titleKey) {
+                @for (node of visibleCurriculumNodes; track node.student + node.titleKey) {
                   <article class="panel roadmap-item">
-                    <div>
+                    <div class="roadmap-copy">
                       <h2>{{ translate(node.titleKey) }}</h2>
-                      <p>{{ node.instrument }} - {{ translate(node.resourcesKey) }}</p>
+                      <p>{{ node.student }} - {{ node.instrument }} - {{ translate(node.resourcesKey) }}</p>
+                      <small>{{ node.teacher }} - {{ node.resource }}</small>
                     </div>
                     <div class="progress-block">
                       <span>{{ node.progress }}%</span>
@@ -1195,13 +1653,15 @@ export class TeacherEditorDialogComponent {
                     <h2>{{ t.paymentsPanelTitle }}</h2>
                     <p>{{ t.paymentsPanelSubtitle }}</p>
                   </div>
-                  <button mat-flat-button type="button">
-                    <mat-icon aria-hidden="true">receipt_long</mat-icon>
-                    <span>{{ t.registerPaymentAction }}</span>
-                  </button>
+                  @if (canManagePayments) {
+                    <button mat-flat-button type="button">
+                      <mat-icon aria-hidden="true">receipt_long</mat-icon>
+                      <span>{{ t.registerPaymentAction }}</span>
+                    </button>
+                  }
                 </div>
 
-                <table mat-table [dataSource]="paymentRows">
+                <table mat-table [dataSource]="visiblePaymentRows">
                   <ng-container matColumnDef="guardian">
                     <th mat-header-cell *matHeaderCellDef>{{ t.paymentGuardianColumn }}</th>
                     <td mat-cell *matCellDef="let payment">{{ payment.guardian }}</td>
@@ -1233,15 +1693,17 @@ export class TeacherEditorDialogComponent {
         </main>
       </mat-sidenav-content>
     </mat-sidenav-container>
+    }
   `,
   styleUrl: './app.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly localeId = inject(LOCALE_ID);
   private readonly dialog = inject(MatDialog);
   private readonly changeDetector = inject(ChangeDetectorRef);
+  private readonly api = inject(MusicSchoolApiService);
   readonly isCompactNavigation = toSignal(
     this.breakpointObserver.observe('(max-width: 900px)').pipe(map((state) => state.matches)),
     { initialValue: false }
@@ -1259,38 +1721,117 @@ export class AppComponent {
   selectedTabIndex = 0;
   selectedView: WorkspaceView = 'today';
   activeNavigationKey: TranslationKey = 'dashboardNavLabel';
+  private readonly tenantId = localStorage.getItem('music-school-tenant-id') ?? '11111111-1111-1111-1111-111111111111';
+  isAuthenticated = localStorage.getItem('music-school-authenticated') === 'true';
+  loginEmail = '';
+  loginPassword = '';
+  rememberLogin = true;
+  showPassword = false;
+  loginErrorVisible = false;
 
   readonly navigationItems: NavigationItem[] = [
     { icon: 'dashboard', labelKey: 'dashboardNavLabel', view: 'today', roles: ['Admin'] },
     { icon: 'event', labelKey: 'lessonsNavLabel', view: 'today', roles: ['Admin', 'Teacher', 'Guardian', 'Student'] },
     { icon: 'family_restroom', labelKey: 'familiesNavLabel', view: 'families', roles: ['Admin', 'Guardian'] },
+    { icon: 'manage_accounts', labelKey: 'usersNavLabel', view: 'users', roles: ['Admin'] },
     { icon: 'co_present', labelKey: 'teacherRegisterNavLabel', view: 'teachers', roles: ['Admin'] },
+    { icon: 'event_note', labelKey: 'scheduleTitle', view: 'teachers', roles: ['Teacher'] },
     { icon: 'library_music', labelKey: 'curriculumNavLabel', view: 'curriculum', roles: ['Admin', 'Teacher', 'Guardian', 'Student'] },
     { icon: 'payments', labelKey: 'paymentsNavLabel', view: 'payments', roles: ['Admin', 'Guardian'] }
   ];
 
   readonly roles: UserRole[] = ['Admin', 'Teacher', 'Guardian', 'Student'];
   selectedRole: UserRole = 'Admin';
+  readonly currentGuardianName = 'Miguel Martins';
+  readonly currentTeacherName = 'Maria Silva';
+  readonly currentStudentName = 'Sofia Martins';
 
   readonly metrics: Metric[] = [
     { labelKey: 'weeklyLessonsMetric', value: '128', detailKey: 'weeklyLessonsDetail', tone: 'blue', roles: ['Admin', 'Teacher', 'Guardian', 'Student'] },
     { labelKey: 'activeFamiliesMetric', value: '74', detailKey: 'activeFamiliesDetail', tone: 'green', roles: ['Admin', 'Guardian'] },
     { labelKey: 'openPaymentsMetric', value: '16', detailKey: 'openPaymentsDetail', tone: 'amber', roles: ['Admin', 'Guardian'] },
-    { labelKey: 'roadmapResourcesMetric', value: '342', detailKey: 'roadmapResourcesDetail', tone: 'red', roles: ['Admin', 'Teacher', 'Student'] }
+    { labelKey: 'roadmapResourcesMetric', value: '342', detailKey: 'roadmapResourcesDetail', tone: 'red', roles: ['Admin', 'Teacher', 'Guardian', 'Student'] }
   ];
 
   readonly lessonColumns = ['time', 'student', 'teacher', 'instrument', 'status'];
   readonly lessonRows: LessonRow[] = [
     { time: '15:30', student: 'Sofia Martins', teacher: 'Maria Silva', instrument: 'Piano', statusKey: 'confirmedStatus' },
     { time: '16:30', student: 'Leo Costa', teacher: 'Rui Santos', instrument: 'Guitar', statusKey: 'confirmedStatus' },
-    { time: '17:15', student: 'Ana Pereira', teacher: 'Carla Lopes', instrument: 'Violin', statusKey: 'pendingStatus' }
+    { time: '17:15', student: 'Ana Pereira', teacher: 'Carla Lopes', instrument: 'Violin', statusKey: 'pendingStatus' },
+    { time: '18:00', student: 'Ines Martins', teacher: 'Maria Silva', instrument: 'Voice', statusKey: 'confirmedStatus' },
+    { time: '19:00', student: 'Miguel Martins', teacher: 'Rui Santos', instrument: 'Guitar', statusKey: 'confirmedStatus' }
   ];
 
   readonly familyColumns = ['guardian', 'students', 'payerStatus', 'nextAction'];
   readonly familyRows: FamilyRow[] = [
-    { guardian: 'Miguel Martins', students: 'Sofia, Ines', payerStatusKey: 'primaryPayerStatus', nextActionKey: 'sendReceiptAction' },
-    { guardian: 'Beatriz Costa', students: 'Leo', payerStatusKey: 'paymentPendingStatus', nextActionKey: 'confirmMbwayAction' },
-    { guardian: 'Paulo Pereira', students: 'Ana, Tiago', payerStatusKey: 'sharedGuardianStatus', nextActionKey: 'reviewTransferAction' }
+    { guardian: 'Miguel Martins', students: ['Miguel Martins', 'Sofia Martins', 'Ines Martins'], payerStatusKey: 'primaryPayerStatus', nextActionKey: 'sendReceiptAction' },
+    { guardian: 'Beatriz Costa', students: ['Leo Costa'], payerStatusKey: 'paymentPendingStatus', nextActionKey: 'confirmMbwayAction' },
+    { guardian: 'Paulo Pereira', students: ['Ana Pereira', 'Tiago Pereira'], payerStatusKey: 'sharedGuardianStatus', nextActionKey: 'reviewTransferAction' }
+  ];
+
+  readonly userColumns = ['name', 'profile', 'contact', 'address', 'status'];
+  userRows: UserRow[] = [
+    {
+      id: 'admin-1',
+      name: 'Clara Admin',
+      profile: 'Admin',
+      fullAddress: 'Rua da Escola 12, Lisboa',
+      postalCode: '1000-001',
+      documentNumber: 'ID-10001',
+      contactPhone: '+351 910 000 001',
+      email: 'admin@musicschool.test',
+      isActive: true,
+      householdUserIds: []
+    },
+    {
+      id: 'guardian-1',
+      name: 'Miguel Martins',
+      profile: 'Guardian',
+      fullAddress: 'Avenida Central 44, Lisboa',
+      postalCode: '1050-010',
+      documentNumber: 'ID-20001',
+      contactPhone: '+351 910 000 002',
+      email: 'miguel.martins@example.test',
+      isActive: true,
+      householdUserIds: ['student-1', 'student-2'],
+      scheduleSlotId: 'guitar-rui-thu-1800'
+    },
+    {
+      id: 'student-1',
+      name: 'Sofia Martins',
+      profile: 'Student',
+      fullAddress: 'Avenida Central 44, Lisboa',
+      postalCode: '1050-010',
+      documentNumber: 'ID-30001',
+      contactPhone: '+351 910 000 003',
+      email: 'sofia.martins@example.test',
+      isActive: true,
+      householdUserIds: [],
+      scheduleSlotId: 'piano-maria-mon-1530'
+    },
+    {
+      id: 'student-2',
+      name: 'Ines Martins',
+      profile: 'Student',
+      fullAddress: 'Avenida Central 44, Lisboa',
+      postalCode: '1050-010',
+      documentNumber: 'ID-30002',
+      contactPhone: '+351 910 000 004',
+      email: 'ines.martins@example.test',
+      isActive: true,
+      householdUserIds: [],
+      scheduleSlotId: 'voice-maria-mon-1800'
+    }
+  ];
+
+  userDraft: UserDraft = this.createEmptyUserDraft();
+
+  scheduleSlotOptions: ScheduleSlotOption[] = [
+    { id: 'piano-maria-mon-1530', teacherId: '', instrumentId: '', instrument: 'Piano', teacher: 'Maria Silva', dayOfWeek: 1, dayKey: 'mondayLabel', time: '15:30', durationMinutes: 45, durationKey: 'minutes45', timeZoneId: 'Europe/Lisbon', isTaken: true, assignedStudent: 'Sofia Martins' },
+    { id: 'piano-maria-wed-1700', teacherId: '', instrumentId: '', instrument: 'Piano', teacher: 'Maria Silva', dayOfWeek: 3, dayKey: 'wednesdayLabel', time: '17:00', durationMinutes: 60, durationKey: 'minutes60', timeZoneId: 'Europe/Lisbon', isTaken: false },
+    { id: 'guitar-rui-tue-1630', teacherId: '', instrumentId: '', instrument: 'Guitar', teacher: 'Rui Santos', dayOfWeek: 2, dayKey: 'tuesdayLabel', time: '16:30', durationMinutes: 45, durationKey: 'minutes45', timeZoneId: 'Europe/Lisbon', isTaken: true, assignedStudent: 'Leo Costa' },
+    { id: 'guitar-rui-thu-1800', teacherId: '', instrumentId: '', instrument: 'Guitar', teacher: 'Rui Santos', dayOfWeek: 2, dayKey: 'tuesdayLabel', time: '18:00', durationMinutes: 45, durationKey: 'minutes45', timeZoneId: 'Europe/Lisbon', isTaken: false },
+    { id: 'violin-carla-wed-1700', teacherId: '', instrumentId: '', instrument: 'Violin', teacher: 'Carla Lopes', dayOfWeek: 3, dayKey: 'wednesdayLabel', time: '17:00', durationMinutes: 60, durationKey: 'minutes60', timeZoneId: 'Europe/Lisbon', isTaken: true, assignedStudent: 'Ana Pereira' }
   ];
 
   teacherRows: TeacherRow[] = [
@@ -1306,9 +1847,11 @@ export class AppComponent {
   ];
 
   readonly curriculumNodes: CurriculumNode[] = [
-    { titleKey: 'rhythmNodeTitle', instrument: 'Piano', progress: 68, resourcesKey: 'resources8' },
-    { titleKey: 'chordNodeTitle', instrument: 'Guitar', progress: 42, resourcesKey: 'resources6' },
-    { titleKey: 'sightReadingNodeTitle', instrument: 'Violin', progress: 54, resourcesKey: 'resources11' }
+    { student: 'Sofia Martins', teacher: 'Maria Silva', titleKey: 'rhythmNodeTitle', instrument: 'Piano', resource: 'Lesson notes and fingering PDF', progress: 68, resourcesKey: 'resources8' },
+    { student: 'Leo Costa', teacher: 'Rui Santos', titleKey: 'chordNodeTitle', instrument: 'Guitar', resource: 'Backing track MP3', progress: 42, resourcesKey: 'resources6' },
+    { student: 'Ana Pereira', teacher: 'Carla Lopes', titleKey: 'sightReadingNodeTitle', instrument: 'Violin', resource: 'Etude scan and bowing notes', progress: 54, resourcesKey: 'resources11' },
+    { student: 'Ines Martins', teacher: 'Maria Silva', titleKey: 'sightReadingNodeTitle', instrument: 'Voice', resource: 'Breathing warm-up audio', progress: 36, resourcesKey: 'resources6' },
+    { student: 'Miguel Martins', teacher: 'Rui Santos', titleKey: 'chordNodeTitle', instrument: 'Guitar', resource: 'Practice loop MP3', progress: 24, resourcesKey: 'resources8' }
   ];
 
   readonly paymentColumns = ['guardian', 'student', 'method', 'amount', 'status'];
@@ -1330,12 +1873,119 @@ export class AppComponent {
     return this.metrics.filter((metric) => this.canUseRole(metric.roles));
   }
 
+  get visibleLessonRows(): LessonRow[] {
+    if (this.selectedRole === 'Guardian') {
+      return this.lessonRows.filter((lesson) => this.guardianStudentNames.includes(lesson.student));
+    }
+
+    if (this.selectedRole === 'Teacher') {
+      return this.lessonRows.filter((lesson) => lesson.teacher === this.currentTeacherName);
+    }
+
+    if (this.selectedRole === 'Student') {
+      return this.lessonRows.filter((lesson) => lesson.student === this.currentStudentName);
+    }
+
+    return this.lessonRows;
+  }
+
+  get visibleFamilyRows(): FamilyRow[] {
+    return this.selectedRole === 'Guardian'
+      ? this.familyRows.filter((family) => family.guardian === this.currentGuardianName)
+      : this.familyRows;
+  }
+
+  get visibleTeacherRows(): TeacherRow[] {
+    return this.selectedRole === 'Teacher'
+      ? this.teacherRows.filter((teacher) => teacher.name === this.currentTeacherName)
+      : this.teacherRows;
+  }
+
+  get visibleCurriculumNodes(): CurriculumNode[] {
+    if (this.selectedRole === 'Guardian') {
+      return this.curriculumNodes.filter((node) => this.guardianStudentNames.includes(node.student));
+    }
+
+    if (this.selectedRole === 'Teacher') {
+      return this.curriculumNodes.filter((node) => node.teacher === this.currentTeacherName);
+    }
+
+    if (this.selectedRole === 'Student') {
+      return this.curriculumNodes.filter((node) => node.student === this.currentStudentName);
+    }
+
+    return this.curriculumNodes;
+  }
+
+  get visiblePaymentRows(): PaymentRow[] {
+    return this.selectedRole === 'Guardian'
+      ? this.paymentRows.filter((payment) => payment.guardian === this.currentGuardianName)
+      : this.paymentRows;
+  }
+
+  get householdCandidateRows(): UserRow[] {
+    return this.userRows.filter((user) => user.id !== this.userDraft.id && user.isActive);
+  }
+
+  get filteredScheduleSlotOptions(): ScheduleSlotOption[] {
+    const query = this.userDraft.instrumentSearch.trim().toLowerCase();
+    return query
+      ? this.scheduleSlotOptions.filter((slot) => slot.instrument.toLowerCase().includes(query))
+      : this.scheduleSlotOptions;
+  }
+
   get canScheduleLessons(): boolean {
     return this.selectedRole === 'Admin';
   }
 
   get canUploadResources(): boolean {
     return this.selectedRole === 'Admin' || this.selectedRole === 'Teacher';
+  }
+
+  get canManageFamilies(): boolean {
+    return this.selectedRole === 'Admin';
+  }
+
+  get canManagePayments(): boolean {
+    return this.selectedRole === 'Admin';
+  }
+
+  get canManageTeachers(): boolean {
+    return this.selectedRole === 'Admin';
+  }
+
+  get canManageUsers(): boolean {
+    return this.selectedRole === 'Admin';
+  }
+
+  ngOnInit(): void {
+    if (this.isAuthenticated) {
+      this.loadUsers();
+    }
+  }
+
+  login(): void {
+    if (!this.loginEmail.trim() || !this.loginPassword.trim()) {
+      this.loginErrorVisible = true;
+      return;
+    }
+
+    this.isAuthenticated = true;
+    this.loginErrorVisible = false;
+
+    if (this.rememberLogin) {
+      localStorage.setItem('music-school-authenticated', 'true');
+    } else {
+      localStorage.removeItem('music-school-authenticated');
+    }
+
+    this.loadUsers();
+  }
+
+  logout(): void {
+    this.isAuthenticated = false;
+    this.loginPassword = '';
+    localStorage.removeItem('music-school-authenticated');
   }
 
   changeLanguage(locale: SupportedLocale): void {
@@ -1390,7 +2040,88 @@ export class AppComponent {
     return this.visibleTabViews.includes(view);
   }
 
+  startNewUser(): void {
+    this.userDraft = this.createEmptyUserDraft();
+  }
+
+  editUser(user: UserRow): void {
+    this.userDraft = {
+      id: user.id,
+      name: user.name,
+      profile: user.profile,
+      fullAddress: user.fullAddress,
+      postalCode: user.postalCode,
+      documentNumber: user.documentNumber,
+      contactPhone: user.contactPhone,
+      email: user.email,
+      householdUserIds: [...user.householdUserIds],
+      instrumentSearch: this.scheduleSlotOptions.find((slot) => slot.id === user.scheduleSlotId)?.instrument ?? '',
+      scheduleSlotId: user.scheduleSlotId
+    };
+  }
+
+  saveUser(): void {
+    const request = this.toUserRegistrationRequest();
+    const save$ = this.userDraft.id
+      ? this.api.updateUser(this.userDraft.id, request)
+      : this.api.createUser(request);
+
+    save$.subscribe({
+      next: (user) => {
+        this.upsertUser(this.fromUserSummary(user));
+        this.userDraft = this.createEmptyUserDraft();
+        this.loadUsers();
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  deactivateUser(user: UserRow): void {
+    this.api.deactivateUser(user.id).subscribe({
+      next: (updatedUser) => {
+        this.upsertUser(this.fromUserSummary(updatedUser));
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  selectScheduleSlot(slot: ScheduleSlotOption): void {
+    if (slot.isTaken) {
+      return;
+    }
+
+    this.userDraft.scheduleSlotId = slot.id;
+    this.userDraft.instrumentSearch = slot.instrument;
+  }
+
+  loadScheduleOptions(): void {
+    const query = this.userDraft.instrumentSearch.trim();
+    if (query.length < 2) {
+      return;
+    }
+
+    this.api.getTeacherScheduleOptions(query).subscribe({
+      next: (options) => {
+        this.scheduleSlotOptions = options.map((option) => this.fromTeacherScheduleOption(option));
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
   openTeacherDialog(teacher?: TeacherRow): void {
+    if (!this.canManageTeachers && teacher?.name !== this.currentTeacherName) {
+      return;
+    }
+
     const editableTeacher: EditableTeacher = teacher
       ? { ...teacher }
       : {
@@ -1417,6 +2148,7 @@ export class AppComponent {
           mode: teacher ? 'update' : 'create',
           teacher: editableTeacher,
           schedules,
+          canManageTeacherProfile: this.canManageTeachers,
           t: this.t
         }
       });
@@ -1454,7 +2186,124 @@ export class AppComponent {
   }
 
   private canUseRole(roles: readonly UserRole[]): boolean {
-    return this.selectedRole === 'Admin' || roles.includes(this.selectedRole);
+    return roles.includes(this.selectedRole);
+  }
+
+  private loadUsers(): void {
+    this.api.getUsers(1, 100).subscribe({
+      next: (page) => {
+        this.userRows = page.items.map((user) => this.fromUserSummary(user));
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  private upsertUser(user: UserRow): void {
+    this.userRows = [
+      ...this.userRows.filter((item) => item.id !== user.id),
+      user
+    ].sort((left, right) => left.name.localeCompare(right.name));
+  }
+
+  private toUserRegistrationRequest(): UserRegistrationRequest {
+    const selectedSlot = this.scheduleSlotOptions.find((slot) => slot.id === this.userDraft.scheduleSlotId);
+    const scheduleSelection = selectedSlot && selectedSlot.teacherId && selectedSlot.instrumentId
+      ? {
+          teacherId: selectedSlot.teacherId,
+          instrumentId: selectedSlot.instrumentId,
+          dayOfWeek: selectedSlot.dayOfWeek,
+          startTime: selectedSlot.time,
+          durationMinutes: selectedSlot.durationMinutes,
+          timeZoneId: selectedSlot.timeZoneId
+        }
+      : undefined;
+
+    return {
+      tenantId: this.tenantId,
+      name: this.userDraft.name.trim(),
+      profile: this.userDraft.profile,
+      fullAddress: this.userDraft.fullAddress.trim(),
+      postalCode: this.userDraft.postalCode.trim(),
+      documentNumber: this.userDraft.documentNumber.trim(),
+      contactPhone: this.userDraft.contactPhone.trim(),
+      email: this.userDraft.email.trim().toLowerCase(),
+      householdUserIds: this.userDraft.profile === 'Guardian' ? this.userDraft.householdUserIds : [],
+      scheduleSelection
+    };
+  }
+
+  private fromUserSummary(user: UserSummary): UserRow {
+    return {
+      id: user.id,
+      name: user.name,
+      profile: user.profile,
+      fullAddress: user.fullAddress,
+      postalCode: user.postalCode,
+      documentNumber: user.documentNumber,
+      contactPhone: user.contactPhone,
+      email: user.email,
+      isActive: user.isActive,
+      householdUserIds: []
+    };
+  }
+
+  private fromTeacherScheduleOption(option: TeacherScheduleOption): ScheduleSlotOption {
+    return {
+      id: [
+        option.instrumentId,
+        option.teacherId,
+        option.dayOfWeek,
+        option.startTime
+      ].join(':'),
+      teacherId: option.teacherId,
+      instrumentId: option.instrumentId,
+      instrument: option.instrumentName,
+      teacher: option.teacherName,
+      dayOfWeek: option.dayOfWeek,
+      dayKey: this.dayKey(option.dayOfWeek),
+      time: option.startTime,
+      durationMinutes: option.durationMinutes,
+      durationKey: option.durationMinutes === 60 ? 'minutes60' : 'minutes45',
+      timeZoneId: option.timeZoneId,
+      isTaken: option.isTaken,
+      assignedStudent: option.assignedStudentName
+    };
+  }
+
+  private dayKey(dayOfWeek: number): TranslationKey {
+    switch (dayOfWeek) {
+      case 1:
+        return 'mondayLabel';
+      case 2:
+        return 'tuesdayLabel';
+      case 3:
+        return 'wednesdayLabel';
+      case 4:
+        return 'thursdayLabel';
+      default:
+        return 'mondayLabel';
+    }
+  }
+
+  private createEmptyUserDraft(): UserDraft {
+    return {
+      name: '',
+      profile: 'Student',
+      fullAddress: '',
+      postalCode: '',
+      documentNumber: '',
+      contactPhone: '',
+      email: '',
+      householdUserIds: [],
+      instrumentSearch: ''
+    };
+  }
+
+  private get guardianStudentNames(): readonly string[] {
+    return this.familyRows.find((family) => family.guardian === this.currentGuardianName)?.students ?? [];
   }
 
   private syncSelectedTabIndex(): void {
