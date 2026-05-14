@@ -1,16 +1,15 @@
 @use '@angular/material' as mat;
-
-$font-stack: 'Roboto', Arial, sans-serif;
+@use './styles/variables' as v;
 
 $music-school-theme: mat.define-theme((
   color: (
     theme-type: light,
-    primary: mat.$azure-palette,
-    tertiary: mat.$green-palette
+    primary: mat.$magenta-palette,
+    tertiary: mat.$cyan-palette
   ),
   typography: (
-    brand-family: $font-stack,
-    plain-family: $font-stack
+    brand-family: v.$font-stack,
+    plain-family: v.$font-stack
   ),
   density: (
     scale: 0
@@ -22,13 +21,173 @@ html {
   @include mat.all-component-themes($music-school-theme);
 }
 
+:root {
+  --ods-primary: #{v.$ods-primary};
+  --ods-primary-dark: #{v.$ods-primary-dark};
+  --ods-red: #{v.$ods-red};
+  --ods-cyan: #{v.$ods-cyan};
+  --ods-blue: #{v.$ods-blue};
+  --ods-green: #{v.$ods-green};
+  --ods-amber: #{v.$ods-amber};
+  --ods-bg: #{v.$ods-bg};
+  --ods-surface: #{v.$ods-surface};
+  --ods-title: #{v.$ods-title};
+  --ods-ink: #{v.$ods-ink};
+  --ods-muted: #{v.$ods-muted};
+  --ods-border: #{v.$ods-border};
+  --ods-shadow-1: #{v.$ods-shadow-1};
+  --ods-shadow-2: #{v.$ods-shadow-2};
+  --ods-shadow-3: #{v.$ods-shadow-3};
+  --ods-brand-gradient: #{v.$ods-brand-gradient};
+  --bg-main: var(--ods-bg);
+  --bg-card: var(--ods-surface);
+  --text-primary: var(--ods-title);
+  --text-secondary: var(--ods-muted);
+  --accent-gradient: var(--ods-brand-gradient);
+  --status-confirmed-bg: rgba(15, 123, 85, 0.12);
+  --status-confirmed-text: #075f40;
+  --status-confirmed-glow: rgba(15, 123, 85, 0.18);
+  --status-pending-bg: rgba(154, 100, 17, 0.13);
+  --status-pending-text: #754909;
+  --status-pending-glow: rgba(154, 100, 17, 0.18);
+  --status-review-bg: rgba(75, 20, 63, 0.11);
+  --status-review-text: var(--ods-primary);
+  --status-review-glow: rgba(75, 20, 63, 0.18);
+  --mdc-filled-button-container-color: var(--ods-primary);
+  --mdc-filled-button-label-text-color: #fff;
+  --mat-fab-foreground-color: #fff;
+  --mat-fab-state-layer-color: #fff;
+}
+
+body.dark-theme {
+  --bg-main: #{v.$studio-bg-main};
+  --bg-card: rgba(30, 30, 30, 0.8);
+  --text-primary: #{v.$studio-text-primary};
+  --text-secondary: #{v.$studio-text-secondary};
+  --accent-gradient: var(--ods-brand-gradient);
+  --ods-bg: var(--bg-main);
+  --ods-surface: var(--bg-card);
+  --ods-title: #fff;
+  --ods-ink: var(--text-primary);
+  --ods-muted: var(--text-secondary);
+  --ods-border: rgba(255, 255, 255, 0.1);
+  --ods-shadow-1: 0 12px 34px rgba(0, 0, 0, 0.42);
+  --ods-shadow-2: 0 18px 52px rgba(0, 0, 0, 0.5);
+  --ods-shadow-3: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 28px 80px rgba(0, 0, 0, 0.62), 0 0 34px rgba(24, 195, 232, 0.12);
+  --status-confirmed-bg: rgba(100, 255, 180, 0.13);
+  --status-confirmed-text: #7fffc4;
+  --status-confirmed-glow: rgba(100, 255, 180, 0.42);
+  --status-pending-bg: rgba(255, 214, 125, 0.13);
+  --status-pending-text: #ffd67d;
+  --status-pending-glow: rgba(255, 214, 125, 0.35);
+  --status-review-bg: rgba(199, 146, 255, 0.14);
+  --status-review-text: #d8b5ff;
+  --status-review-glow: rgba(199, 146, 255, 0.4);
+  --mdc-filled-button-container-color: var(--ods-cyan);
+  --mdc-filled-button-label-text-color: #081014;
+  --mat-tooltip-container-color: rgba(30, 30, 30, 0.96);
+  --mat-tooltip-supporting-text-color: var(--text-primary);
+  color-scheme: dark;
+}
+
+body.dark-theme,
+body.dark-theme span,
+body.dark-theme p,
+body.dark-theme h1,
+body.dark-theme h2,
+body.dark-theme h3,
+body.dark-theme h4,
+body.dark-theme h5,
+body.dark-theme h6,
+body.dark-theme label,
+body.dark-theme th,
+body.dark-theme td {
+  color: var(--text-primary);
+}
+
+body.dark-theme small,
+body.dark-theme .eyebrow,
+body.dark-theme .card-topline,
+body.dark-theme .card-copy p,
+body.dark-theme .card-copy small,
+body.dark-theme .feature-heading p:not(.eyebrow),
+body.dark-theme .ods-card p,
+body.dark-theme .ods-panel p,
+body.dark-theme .top-title small,
+body.dark-theme .workspace-footer,
+body.dark-theme .breadcrumb,
+body.dark-theme .breadcrumbs,
+body.dark-theme .description,
+body.dark-theme .subtitle,
+body.dark-theme .secondary-text {
+  color: var(--text-secondary);
+}
+
+body.dark-theme .input-field label,
+body.dark-theme .input-field input,
+body.dark-theme .input-field textarea,
+body.dark-theme .input-field select {
+  color: var(--text-secondary);
+}
+
+body.dark-theme .input-field input,
+body.dark-theme .input-field textarea {
+  border-bottom-color: rgba(255, 255, 255, 0.2);
+  box-shadow: none;
+}
+
+body.dark-theme .input-field input:focus,
+body.dark-theme .input-field textarea:focus {
+  border-bottom-color: var(--ods-cyan);
+  box-shadow: 0 1px 0 0 var(--ods-cyan);
+  color: var(--text-primary);
+}
+
+body.dark-theme mat-icon,
+body.dark-theme i.material-icons,
+body.dark-theme i.material-symbols-rounded,
+body.dark-theme i.material-symbols-sharp {
+  color: var(--ods-cyan);
+}
+
+body.dark-theme img.logo,
+body.dark-theme .brand-logo img,
+body.dark-theme .logo img {
+  filter: brightness(0) invert(1);
+}
+
+body.dark-theme table {
+  background: rgba(30, 30, 30, 0.8);
+  color: var(--text-primary);
+}
+
+body.dark-theme thead,
+body.dark-theme th {
+  color: var(--text-primary);
+}
+
+body.dark-theme tr {
+  transition: background-color 0.3s ease;
+}
+
+body.dark-theme tr:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+body.dark-theme .mat-mdc-tooltip .mdc-tooltip__surface {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(30, 30, 30, 0.96);
+  color: var(--text-primary);
+}
+
 html,
 body {
   min-height: 100%;
   margin: 0;
-  font-family: $font-stack;
-  background: #f7f9fb;
-  color: #17212b;
+  font-family: v.$font-stack;
+  background: var(--ods-bg);
+  color: var(--ods-ink);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 button,
@@ -38,13 +197,364 @@ select {
   font-family: inherit;
 }
 
+button,
+a[mat-button],
+a[mat-raised-button],
+a[mat-flat-button],
+a[mat-stroked-button] {
+  min-height: 48px;
+}
+
 * {
   box-sizing: border-box;
 }
 
 mat-icon {
-  font-family: 'Material Symbols Outlined';
+  font-family: 'Material Symbols Rounded';
   font-weight: normal;
   font-style: normal;
   line-height: 1;
+  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 0;
+  margin-inline: -9px;
+}
+
+.col {
+  padding-inline: 9px;
+}
+
+.s12 {
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+
+@media (min-width: 720px) {
+  .m6 {
+    flex-basis: 50%;
+    max-width: 50%;
+  }
+}
+
+@media (min-width: 1180px) {
+  .l4 {
+    flex-basis: 33.3333%;
+    max-width: 33.3333%;
+  }
+}
+
+.z-depth-1 {
+  box-shadow: var(--ods-shadow-1);
+}
+
+.z-depth-2 {
+  box-shadow: var(--ods-shadow-2);
+}
+
+.z-depth-3 {
+  box-shadow: var(--ods-shadow-3);
+}
+
+.feature-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.feature-heading h1,
+.feature-heading p,
+.ods-card h2,
+.ods-card p,
+.ods-panel h2,
+.ods-panel p {
+  margin: 0;
+}
+
+.feature-heading h1 {
+  color: var(--ods-title);
+  font-size: clamp(2.35rem, 5vw, 4.35rem);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.feature-heading p:not(.eyebrow) {
+  max-width: 740px;
+  margin-top: 12px;
+  color: var(--ods-muted);
+  font-weight: 400;
+  line-height: 1.55;
+}
+
+.eyebrow {
+  color: var(--ods-red);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.quick-schedule-fab,
+.page-action-fab {
+  flex: 0 0 auto;
+  min-height: 56px;
+  background: linear-gradient(135deg, var(--ods-red), var(--ods-primary));
+  box-shadow: var(--ods-shadow-1);
+}
+
+body.dark-theme .quick-schedule-fab,
+body.dark-theme .page-action-fab {
+  box-shadow: 0 0 15px rgba(24, 195, 232, 0.3), var(--ods-shadow-2);
+}
+
+.metrics-row,
+.card-list {
+  margin-top: 18px;
+}
+
+.ods-card,
+.ods-panel {
+  border: 1px solid var(--ods-border);
+  border-left: 3px solid transparent;
+  border-radius: 12px;
+  background: var(--ods-surface);
+  backdrop-filter: blur(16px);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+body.dark-theme .card,
+body.dark-theme .ods-card,
+body.dark-theme .ods-panel {
+  border-color: rgba(255, 255, 255, 0.05);
+  background: rgba(30, 30, 30, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+.card,
+.ods-card {
+  display: grid;
+  gap: 12px;
+  min-height: 220px;
+  padding: 18px;
+  box-shadow: var(--ods-shadow-1);
+  transition: all 0.3s ease;
+}
+
+.card:hover,
+.ods-card:hover {
+  border-left-color: var(--ods-primary);
+  box-shadow: var(--ods-shadow-3);
+  transform: translateY(-4px);
+}
+
+.card-topline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  color: var(--ods-muted);
+}
+
+.card-topline mat-icon {
+  color: var(--ods-primary);
+}
+
+.card-topline span,
+.card-copy p {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.card-action-icons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.action-icon {
+  background: rgba(24, 195, 232, 0.1);
+}
+
+.edit-action,
+.pay-action {
+  color: var(--ods-cyan);
+}
+
+.delete-action,
+.cancel-action {
+  background: rgba(239, 51, 64, 0.09);
+  color: var(--ods-red);
+}
+
+.card-menu-trigger {
+  margin-left: auto;
+  color: var(--ods-muted);
+}
+
+.danger-action {
+  color: var(--ods-red);
+}
+
+.ods-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 24px;
+  padding: 20px;
+}
+
+.curriculum-card mat-progress-bar {
+  --mdc-linear-progress-active-indicator-color: var(--ods-cyan);
+  --mdc-linear-progress-track-color: rgba(75, 20, 63, 0.12);
+}
+
+.curriculum-card .mdc-linear-progress__bar-inner {
+  border-color: transparent;
+  background: var(--accent-gradient);
+  box-shadow: 0 0 16px rgba(24, 195, 232, 0.24);
+}
+
+body.dark-theme .curriculum-card mat-progress-bar {
+  --mdc-linear-progress-track-color: rgba(255, 255, 255, 0.1);
+}
+
+.ods-card > strong {
+  color: var(--ods-title);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 800;
+}
+
+table {
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #eee9ef 25%, #f8f5f9 37%, #eee9ef 63%);
+  background-size: 400% 100%;
+  animation: ods-shimmer 1.35s ease infinite;
+}
+
+body.dark-theme .skeleton {
+  background: linear-gradient(90deg, #1b1b1b 25%, #2a2a2a 37%, #1b1b1b 63%);
+  background-size: 400% 100%;
+}
+
+.skeleton-card {
+  min-height: 220px;
+}
+
+.skeleton-line {
+  height: 14px;
+  margin-block: 10px;
+  border-radius: 999px;
+}
+
+.skeleton-line.short {
+  width: 42%;
+}
+
+.skeleton-line.medium {
+  width: 68%;
+}
+
+@keyframes ods-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: 0 0;
+  }
+}
+
+.card-list .col,
+.metrics-row .col {
+  animation: ods-card-enter 420ms ease both;
+}
+
+.card-list .col:nth-child(2),
+.metrics-row .col:nth-child(2) {
+  animation-delay: 60ms;
+}
+
+.card-list .col:nth-child(3),
+.metrics-row .col:nth-child(3) {
+  animation-delay: 120ms;
+}
+
+.card-list .col:nth-child(4),
+.metrics-row .col:nth-child(4) {
+  animation-delay: 180ms;
+}
+
+@keyframes ods-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .ods-card,
+  .card {
+    min-height: 0;
+    padding: 14px;
+  }
+
+  .card-topline {
+    min-height: 28px;
+  }
+
+  .card-action-icons {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  .feature-heading,
+  .ods-panel {
+    display: grid;
+  }
+
+  .quick-schedule-fab {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 30;
+    box-shadow: var(--ods-shadow-2);
+  }
+
+  .page-action-fab:not(.quick-schedule-fab) {
+    justify-self: stretch;
+    width: 100%;
+  }
+
+  .card-actions button {
+    flex: 1 1 140px;
+  }
 }

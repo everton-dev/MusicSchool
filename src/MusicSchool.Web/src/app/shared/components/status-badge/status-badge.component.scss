@@ -1,0 +1,31 @@
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  box-shadow: 0 0 0 transparent;
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tone-confirmed {
+  background: var(--status-confirmed-bg);
+  color: var(--status-confirmed-text);
+  box-shadow: 0 0 18px var(--status-confirmed-glow);
+}
+
+.tone-pending {
+  background: var(--status-pending-bg);
+  color: var(--status-pending-text);
+  box-shadow: 0 0 18px var(--status-pending-glow);
+}
+
+.tone-review {
+  background: var(--status-review-bg);
+  color: var(--status-review-text);
+  box-shadow: 0 0 18px var(--status-review-glow);
+}

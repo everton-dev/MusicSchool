@@ -1,0 +1,72 @@
+<section class="login-page">
+  <div class="studio-wave" aria-hidden="true">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <header class="login-toolbar">
+    <button
+      mat-icon-button
+      type="button"
+      class="theme-toggle"
+      [attr.aria-label]="'theme.changeTheme' | appTranslate"
+      [attr.title]="(theme.mode() === 'dark' ? 'theme.lightMode' : 'theme.darkMode') | appTranslate"
+      (click)="theme.toggleTheme()">
+      <mat-icon aria-hidden="true">{{ theme.mode() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
+
+    <div class="language-switcher" [attr.aria-label]="'shell.language' | appTranslate">
+      @for (language of i18n.languages; track language.locale) {
+        <button
+          mat-button
+          type="button"
+          class="language-option"
+          [class.selected]="i18n.currentLocale() === language.locale"
+          (click)="i18n.setLocale(language.locale)">
+          {{ language.code }}
+        </button>
+      }
+    </div>
+  </header>
+
+  <article class="login-card">
+    <div class="brand-lockup">
+      <span class="brand-mark" aria-hidden="true">OS</span>
+      <span>
+        <strong>Oficina do Som</strong>
+        <small>{{ 'shell.tenant' | appTranslate }}</small>
+      </span>
+    </div>
+
+    <div class="login-heading">
+      <p class="eyebrow">Backstage</p>
+      <h1>{{ 'LOGIN.TITLE' | appTranslate }}</h1>
+      <p>{{ 'LOGIN.SUBTITLE' | appTranslate }}</p>
+    </div>
+
+    <form class="login-form" [formGroup]="loginForm" (ngSubmit)="submit()">
+      <div class="input-field">
+        <input id="login-email" type="email" formControlName="email" autocomplete="email">
+        <label for="login-email">{{ 'LOGIN.EMAIL' | appTranslate }}</label>
+      </div>
+
+      <div class="input-field">
+        <input id="login-password" type="password" formControlName="password" autocomplete="current-password">
+        <label for="login-password">{{ 'LOGIN.PASSWORD' | appTranslate }}</label>
+      </div>
+
+      <a class="forgot-link" href="#">{{ 'LOGIN.FORGOT' | appTranslate }}</a>
+
+      @if (hasError()) {
+        <p class="login-error" role="alert">{{ 'LOGIN.ERROR' | appTranslate }}</p>
+      }
+
+      <button mat-flat-button type="submit" class="login-submit">
+        <span>{{ 'LOGIN.SUBMIT' | appTranslate }}</span>
+        <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+      </button>
+    </form>
+  </article>
+</section>

@@ -1,0 +1,23 @@
+<article
+  class="dashboard-card z-depth-1"
+  [class.tone-wine]="tone === 'wine'"
+  [class.tone-red]="tone === 'red'"
+  [class.tone-cyan]="tone === 'cyan'"
+  [class.tone-purple]="tone === 'purple'">
+  <div class="card-icon" aria-hidden="true">
+    <mat-icon>{{ icon }}</mat-icon>
+  </div>
+
+  <div class="card-copy">
+    <p>{{ titleKey | appTranslate }}</p>
+    <strong>{{ value }}</strong>
+    <small>{{ metaKey | appTranslate }}</small>
+  </div>
+
+  @if (actionKey) {
+    <button mat-button type="button">
+      <span>{{ actionKey | appTranslate }}</span>
+      <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+    </button>
+  }
+</article>

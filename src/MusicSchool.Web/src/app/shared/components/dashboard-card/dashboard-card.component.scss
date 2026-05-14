@@ -1,0 +1,131 @@
+.dashboard-card {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  gap: 14px;
+  min-height: 164px;
+  padding: 18px;
+  border: 1px solid var(--ods-border);
+  border-left: 3px solid transparent;
+  border-radius: 12px;
+  background: var(--ods-surface);
+  backdrop-filter: blur(16px);
+  box-shadow: var(--ods-shadow-1);
+  transition: all 0.3s ease;
+}
+
+:host-context(.dark-theme) .dashboard-card {
+  border-color: rgba(255, 255, 255, 0.05);
+  background: rgba(30, 30, 30, 0.8);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--ods-shadow-1), 0 0 24px rgba(24, 195, 232, 0.06);
+}
+
+.dashboard-card:hover {
+  border-left-color: var(--ods-primary);
+  box-shadow: var(--ods-shadow-3);
+  transform: translateY(-4px);
+}
+
+.card-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  background: var(--ods-brand-gradient);
+  color: #fff;
+}
+
+.tone-wine .card-icon {
+  background: var(--ods-brand-gradient);
+}
+
+.tone-red .card-icon {
+  background: linear-gradient(135deg, var(--ods-red), var(--ods-primary), var(--ods-cyan));
+}
+
+.tone-cyan .card-icon {
+  background: linear-gradient(135deg, var(--ods-cyan), var(--ods-primary), var(--ods-red));
+  color: #fff;
+}
+
+.tone-purple .card-icon {
+  background: linear-gradient(135deg, var(--ods-primary), var(--ods-red), var(--ods-cyan));
+}
+
+.card-copy {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.card-copy p,
+.card-copy small {
+  margin: 0;
+  color: var(--ods-muted);
+}
+
+.card-copy p {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.card-copy strong {
+  color: var(--ods-title);
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 800;
+  line-height: 1;
+}
+
+:host-context(.dark-theme) .card-copy strong {
+  color: var(--ods-cyan);
+  text-shadow: 0 0 18px rgba(24, 195, 232, 0.22);
+}
+
+button {
+  grid-column: 1 / -1;
+  justify-self: start;
+  min-height: 48px;
+  color: var(--ods-primary);
+}
+
+@media (max-width: 600px) {
+  .dashboard-card {
+    grid-template-columns: 42px minmax(0, 1fr);
+    min-height: 0;
+    padding: 14px;
+  }
+
+  .card-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+  }
+
+  .card-copy {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+
+  .card-copy p {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .card-copy small {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .card-copy strong {
+    grid-row: 1;
+    grid-column: 2;
+    font-size: 1.75rem;
+  }
+
+  button {
+    grid-column: 1 / -1;
+  }
+}

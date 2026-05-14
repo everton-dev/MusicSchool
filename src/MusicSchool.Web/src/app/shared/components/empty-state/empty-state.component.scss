@@ -1,0 +1,45 @@
+.empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  padding: clamp(28px, 5vw, 56px);
+  border: 1px dashed color-mix(in srgb, var(--ods-primary) 28%, var(--ods-border));
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.7)),
+    radial-gradient(circle at top, rgba(24, 195, 232, 0.16), transparent 42%);
+  text-align: center;
+}
+
+.empty-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  background: rgba(75, 20, 63, 0.08);
+  color: var(--ods-primary);
+}
+
+.empty-icon mat-icon {
+  width: 40px;
+  height: 40px;
+  font-size: 40px;
+}
+
+h2,
+p {
+  margin: 0;
+}
+
+h2 {
+  color: var(--ods-ink);
+  font-size: 1.25rem;
+}
+
+p {
+  max-width: 480px;
+  margin-top: 8px;
+  color: var(--ods-muted);
+  line-height: 1.55;
+}

@@ -1,0 +1,91 @@
+@if (isAuthRoute()) {
+  <router-outlet></router-outlet>
+} @else {
+  <mat-sidenav-container class="app-shell">
+    <mat-sidenav
+      #drawer
+      class="app-sidebar"
+      [mode]="(isMobile$ | async) ? 'over' : 'side'"
+      [opened]="(isMobile$ | async) === false">
+      <a class="brand-lockup" routerLink="/dashboard" (click)="closeMobileNav(drawer)">
+        <span class="brand-mark" aria-hidden="true">OS</span>
+        <span>
+          <strong>Oficina do Som</strong>
+          <small>{{ 'shell.tenant' | appTranslate }}</small>
+        </span>
+      </a>
+
+      <nav class="nav-list" [attr.aria-label]="'shell.primaryNavigation' | appTranslate">
+        <a
+          *ngFor="let item of navItems"
+          class="nav-link"
+          [routerLink]="item.path"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.path === '/dashboard' }"
+          (click)="closeMobileNav(drawer)">
+          <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+          <span>{{ item.labelKey | appTranslate }}</span>
+        </a>
+      </nav>
+    </mat-sidenav>
+
+    <mat-sidenav-content class="app-content">
+      <mat-toolbar class="top-bar">
+        <button
+          mat-icon-button
+          type="button"
+          class="menu-trigger"
+          [attr.aria-label]="'shell.openNavigation' | appTranslate"
+          (click)="drawer.toggle()">
+          <mat-icon aria-hidden="true">menu</mat-icon>
+        </button>
+
+        <div class="top-title">
+          <span>{{ 'shell.workspace' | appTranslate }}</span>
+          <small>{{ 'shell.subtitle' | appTranslate }}</small>
+        </div>
+
+        <label class="global-search">
+          <mat-icon aria-hidden="true">search</mat-icon>
+          <span class="visually-hidden">{{ 'shell.searchLabel' | appTranslate }}</span>
+          <input
+            type="search"
+            [(ngModel)]="globalSearch"
+            [placeholder]="'shell.searchPlaceholder' | appTranslate">
+        </label>
+
+        <div class="toolbar-spacer"></div>
+
+        <button
+          mat-icon-button
+          type="button"
+          class="theme-toggle"
+          [attr.aria-label]="'theme.changeTheme' | appTranslate"
+          [attr.title]="(theme.mode() === 'dark' ? 'theme.lightMode' : 'theme.darkMode') | appTranslate"
+          (click)="theme.toggleTheme()">
+          <mat-icon aria-hidden="true">{{ theme.mode() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        </button>
+
+        <div class="language-switcher" [attr.aria-label]="'shell.language' | appTranslate">
+          <button
+            *ngFor="let language of i18n.languages"
+            mat-button
+            type="button"
+            class="language-option"
+            [class.selected]="i18n.currentLocale() === language.locale"
+            (click)="i18n.setLocale(language.locale)">
+            {{ language.code }}
+          </button>
+        </div>
+      </mat-toolbar>
+
+      <main class="workspace">
+        <router-outlet></router-outlet>
+        <footer class="workspace-footer">
+          <span>{{ 'shell.footerCopyright' | appTranslate }}</span>
+          <a href="#" [attr.aria-label]="'shell.support' | appTranslate">{{ 'shell.support' | appTranslate }}</a>
+        </footer>
+      </main>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+}

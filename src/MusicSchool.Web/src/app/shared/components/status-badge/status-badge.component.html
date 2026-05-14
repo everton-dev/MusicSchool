@@ -1,0 +1,7 @@
+<span
+  class="status-badge"
+  [class.tone-confirmed]="tone === 'confirmed'"
+  [class.tone-pending]="tone === 'pending'"
+  [class.tone-review]="tone === 'review'">
+  {{ labelKey | appTranslate }}
+</span>

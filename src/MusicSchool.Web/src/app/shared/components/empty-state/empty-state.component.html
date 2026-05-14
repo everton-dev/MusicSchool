@@ -1,0 +1,15 @@
+<section class="empty-state">
+  <span class="empty-icon" aria-hidden="true">
+    <mat-icon>{{ icon }}</mat-icon>
+  </span>
+
+  <div>
+    <h2>{{ titleKey | appTranslate }}</h2>
+    <p>{{ messageKey | appTranslate }}</p>
+  </div>
+
+  <button mat-fab extended type="button" class="page-action-fab">
+    <mat-icon aria-hidden="true">add</mat-icon>
+    <span>{{ actionKey | appTranslate }}</span>
+  </button>
+</section>
