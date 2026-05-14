@@ -1,5 +1,7 @@
 @use '@angular/material' as mat;
 
+$font-stack: 'Roboto', Arial, sans-serif;
+
 $music-school-theme: mat.define-theme((
   color: (
     theme-type: light,
@@ -7,8 +9,8 @@ $music-school-theme: mat.define-theme((
     tertiary: mat.$green-palette
   ),
   typography: (
-    brand-family: 'Roboto',
-    plain-family: 'Roboto'
+    brand-family: $font-stack,
+    plain-family: $font-stack
   ),
   density: (
     scale: 0
@@ -24,9 +26,16 @@ html,
 body {
   min-height: 100%;
   margin: 0;
-  font-family: Roboto, Arial, sans-serif;
+  font-family: $font-stack;
   background: #f7f9fb;
   color: #17212b;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
 }
 
 * {
