@@ -106,6 +106,19 @@ public sealed class FamilyGroup : Entity<FamilyGroupId>
             .ToArray();
     }
 
+    public IReadOnlyCollection<StudentId> RemoveRelationshipsNotIn(UserId guardianUserId, IReadOnlyCollection<StudentId> retainedStudentIds)
+    {
+        var retained = retainedStudentIds.ToHashSet();
+        var removedStudentIds = _relationships
+            .Where(relationship => relationship.GuardianUserId == guardianUserId && !retained.Contains(relationship.StudentId))
+            .Select(relationship => relationship.StudentId)
+            .Distinct()
+            .ToArray();
+
+        _relationships.RemoveAll(relationship => relationship.GuardianUserId == guardianUserId && !retained.Contains(relationship.StudentId));
+        return removedStudentIds;
+    }
+
     private void ClearPrimaryPayerForStudent(StudentId studentId)
     {
         foreach (var relationship in _relationships.Where(relationship => relationship.StudentId == studentId))

@@ -12,4 +12,17 @@ public sealed record UserRegistrationRequest(
     string ContactPhone,
     string Email,
     IReadOnlyCollection<Guid>? HouseholdUserIds = null,
-    UserScheduleSelectionRequest? ScheduleSelection = null);
+    UserScheduleSelectionRequest? ScheduleSelection = null,
+    string DocType = "CC",
+    DateOnly? BirthDate = null,
+    bool IsStudent = false,
+    IReadOnlyCollection<HouseholdMemberRequest>? HouseholdMembers = null,
+    IReadOnlyCollection<string>? LessonTypes = null);
+
+public sealed record HouseholdMemberRequest(
+    Guid? UserId,
+    string Name,
+    DateOnly? BirthDate,
+    string DocType,
+    string DocumentNumber,
+    string Email);

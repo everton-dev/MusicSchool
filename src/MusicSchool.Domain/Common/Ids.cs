@@ -20,6 +20,11 @@ public readonly record struct TeacherId(Guid Value)
     public static TeacherId New() => new(Guid.NewGuid());
 }
 
+public readonly record struct TeacherPauseId(Guid Value)
+{
+    public static TeacherPauseId New() => new(Guid.NewGuid());
+}
+
 public readonly record struct InstrumentId(Guid Value)
 {
     public static InstrumentId New() => new(Guid.NewGuid());

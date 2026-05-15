@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MusicSchool.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using MusicSchool.Infrastructure.Persistence;
 namespace MusicSchool.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(MusicSchoolDbContext))]
-    partial class MusicSchoolDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260515140656_AddUserIdentityFieldsAndRelationshipConstraints")]
+    partial class AddUserIdentityFieldsAndRelationshipConstraints
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -208,11 +211,6 @@ namespace MusicSchool.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("LastScheduleChangeOnUtc")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("RecurrenceRule")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("nvarchar(32)");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -331,17 +329,10 @@ namespace MusicSchool.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("AbsenceReason")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
                     b.Property<string>("DisplayName")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
-
-                    b.Property<bool>("IsAvailable")
-                        .HasColumnType("bit");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uniqueidentifier");
@@ -372,40 +363,6 @@ namespace MusicSchool.Infrastructure.Persistence.Migrations
                     b.HasIndex("InstrumentId");
 
                     b.ToTable("TeacherInstruments", (string)null);
-                });
-
-            modelBuilder.Entity("MusicSchool.Domain.Teachers.TeacherPause", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("EndsOnUtc")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Reason")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<DateTimeOffset>("StartsOnUtc")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("TeacherId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TeacherId");
-
-                    b.HasIndex("TenantId", "TeacherId", "IsActive");
-
-                    b.ToTable("TeacherPauses", (string)null);
                 });
 
             modelBuilder.Entity("MusicSchool.Domain.Users.User", b =>
@@ -587,15 +544,6 @@ namespace MusicSchool.Infrastructure.Persistence.Migrations
                 {
                     b.HasOne("MusicSchool.Domain.Teachers.Teacher", null)
                         .WithMany("Instruments")
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("MusicSchool.Domain.Teachers.TeacherPause", b =>
-                {
-                    b.HasOne("MusicSchool.Domain.Teachers.Teacher", null)
-                        .WithMany()
                         .HasForeignKey("TeacherId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

@@ -12,6 +12,7 @@ public sealed class User : Entity<UserId>
         PreferredCulture = "en-US";
         FullAddress = string.Empty;
         PostalCode = string.Empty;
+        DocumentType = "CC";
         DocumentNumber = string.Empty;
         ContactPhone = string.Empty;
     }
@@ -26,8 +27,10 @@ public sealed class User : Entity<UserId>
         DateTimeOffset createdOnUtc,
         string fullAddress,
         string postalCode,
+        string documentType,
         string documentNumber,
-        string contactPhone)
+        string contactPhone,
+        DateOnly? birthDate)
         : base(id)
     {
         TenantId = tenantId;
@@ -38,8 +41,10 @@ public sealed class User : Entity<UserId>
         CreatedOnUtc = createdOnUtc;
         FullAddress = fullAddress;
         PostalCode = postalCode;
+        DocumentType = documentType;
         DocumentNumber = documentNumber;
         ContactPhone = contactPhone;
+        BirthDate = birthDate;
         IsActive = true;
     }
 
@@ -57,9 +62,13 @@ public sealed class User : Entity<UserId>
 
     public string PostalCode { get; private set; }
 
+    public string DocumentType { get; private set; }
+
     public string DocumentNumber { get; private set; }
 
     public string ContactPhone { get; private set; }
+
+    public DateOnly? BirthDate { get; private set; }
 
     public bool IsActive { get; private set; } = true;
 
@@ -75,7 +84,9 @@ public sealed class User : Entity<UserId>
         string fullAddress = "",
         string postalCode = "",
         string documentNumber = "",
-        string contactPhone = "")
+        string contactPhone = "",
+        string documentType = "CC",
+        DateOnly? birthDate = null)
     {
         if (tenantId.Value == Guid.Empty)
         {
@@ -108,8 +119,10 @@ public sealed class User : Entity<UserId>
             createdOnUtc,
             NormalizeRequiredText(fullAddress, maxLength: 300),
             NormalizeRequiredText(postalCode, maxLength: 20),
+            NormalizeDocumentType(documentType),
             NormalizeRequiredText(documentNumber, maxLength: 80),
-            NormalizeRequiredText(contactPhone, maxLength: 40)));
+            NormalizeRequiredText(contactPhone, maxLength: 40),
+            birthDate));
     }
 
     public Result UpdateRegistration(
@@ -119,7 +132,9 @@ public sealed class User : Entity<UserId>
         string fullAddress,
         string postalCode,
         string documentNumber,
-        string contactPhone)
+        string contactPhone,
+        string documentType,
+        DateOnly? birthDate)
     {
         var emailResult = EmailAddress.Create(email);
         if (emailResult.IsFailure)
@@ -143,8 +158,10 @@ public sealed class User : Entity<UserId>
         Role = role;
         FullAddress = fullAddress.Trim();
         PostalCode = postalCode.Trim();
+        DocumentType = NormalizeDocumentType(documentType);
         DocumentNumber = documentNumber.Trim();
         ContactPhone = contactPhone.Trim();
+        BirthDate = birthDate;
 
         return Result.Success();
     }
@@ -177,14 +194,14 @@ public sealed class User : Entity<UserId>
         string documentNumber,
         string contactPhone)
     {
-        if (string.IsNullOrWhiteSpace(fullAddress) || fullAddress.Length > 300)
+        if (fullAddress.Length > 300)
         {
-            return Result.Failure(new Error("User.FullAddressInvalid", "Full address is required and must not exceed 300 characters."));
+            return Result.Failure(new Error("User.FullAddressInvalid", "Full address must not exceed 300 characters."));
         }
 
-        if (string.IsNullOrWhiteSpace(postalCode) || postalCode.Length > 20)
+        if (postalCode.Length > 20)
         {
-            return Result.Failure(new Error("User.PostalCodeInvalid", "Postal code is required and must not exceed 20 characters."));
+            return Result.Failure(new Error("User.PostalCodeInvalid", "Postal code must not exceed 20 characters."));
         }
 
         if (string.IsNullOrWhiteSpace(documentNumber) || documentNumber.Length > 80)
@@ -204,5 +221,11 @@ public sealed class User : Entity<UserId>
     {
         var trimmed = value.Trim();
         return trimmed.Length > maxLength ? trimmed[..maxLength] : trimmed;
+    }
+
+    private static string NormalizeDocumentType(string value)
+    {
+        var trimmed = string.IsNullOrWhiteSpace(value) ? "CC" : value.Trim();
+        return trimmed.Length > 32 ? trimmed[..32] : trimmed;
     }
 }

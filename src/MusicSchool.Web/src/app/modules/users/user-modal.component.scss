@@ -1,0 +1,434 @@
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: block;
+}
+
+.modal-backdrop {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+  background: rgba(13, 8, 16, 0.52);
+  backdrop-filter: blur(14px);
+}
+
+.user-modal {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(980px, 100%);
+  max-height: min(860px, calc(100dvh - 48px));
+  overflow: hidden;
+  border: 1px solid var(--ods-border);
+  border-radius: 18px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  box-shadow: var(--ods-shadow-3);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, var(--ods-primary), var(--ods-primary-dark) 58%, var(--ods-cyan));
+  color: #fff;
+}
+
+.modal-header h2,
+.modal-header p {
+  margin: 0;
+}
+
+.modal-header h2 {
+  margin-top: 4px;
+  font-size: 1.55rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.modal-eyebrow {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.icon-button,
+.delete-member,
+.lesson-chip button {
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.icon-button {
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.icon-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.modal-content {
+  min-height: 0;
+  overflow: auto;
+  padding: 22px 24px 28px;
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 14px 24px;
+  border-top: 1px solid var(--ods-border);
+  background: color-mix(in srgb, var(--bg-card) 92%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.form-section {
+  display: grid;
+  gap: 16px;
+}
+
+.form-section + .form-section {
+  margin-top: 24px;
+  padding-top: 22px;
+  border-top: 1px solid var(--ods-border);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title mat-icon {
+  color: var(--ods-cyan);
+}
+
+.section-title h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.compact-grid {
+  gap: 14px 0;
+  margin: 0 -8px;
+}
+
+.compact-grid .col {
+  padding-inline: 8px;
+}
+
+.input-field {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  min-height: 82px;
+}
+
+.input-field label {
+  order: -1;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.input-field input,
+.input-field select {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 0 8px;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--text-secondary) 32%, transparent);
+  border-radius: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.98rem;
+}
+
+.input-field select {
+  display: block;
+  appearance: auto;
+}
+
+.input-field input:focus,
+.input-field select:focus {
+  border-bottom-color: var(--ods-cyan);
+  box-shadow: 0 1px 0 0 var(--ods-cyan), 0 10px 20px -18px var(--ods-cyan);
+}
+
+.input-field:focus-within label {
+  color: var(--ods-cyan);
+  text-shadow: 0 0 14px rgba(24, 195, 232, 0.3);
+}
+
+.field-error {
+  color: var(--ods-red);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.conditional-panel {
+  padding: 18px;
+  border: 1px solid var(--ods-border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bg-card) 82%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.modern-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 52px;
+  padding: 12px 14px;
+  border: 1px solid var(--ods-border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg-card) 84%, var(--ods-cyan) 4%);
+  color: var(--text-primary);
+  font-weight: 800;
+}
+
+.modern-switch input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modern-switch .lever {
+  position: relative;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 28px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text-secondary) 35%, transparent);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modern-switch .lever::after {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  transition: transform 0.2s ease;
+  content: '';
+}
+
+.modern-switch input:checked + .lever {
+  background: var(--ods-cyan);
+  box-shadow: 0 0 18px rgba(24, 195, 232, 0.34);
+}
+
+.modern-switch input:checked + .lever::after {
+  transform: translateX(20px);
+}
+
+.household-list {
+  display: grid;
+  gap: 12px;
+}
+
+.household-card {
+  position: relative;
+  padding: 16px 48px 4px 16px;
+  border: 1px solid var(--ods-border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg-card) 92%, #fff 8%);
+}
+
+.delete-member {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 34px;
+  height: 34px;
+  background: rgba(239, 51, 64, 0.1);
+  color: var(--ods-red);
+}
+
+.add-member-button {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid rgba(24, 195, 232, 0.32);
+  border-radius: 999px;
+  background: rgba(24, 195, 232, 0.1);
+  color: var(--ods-cyan);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.autocomplete-shell {
+  position: relative;
+}
+
+.autocomplete-options {
+  position: absolute;
+  z-index: 2;
+  top: calc(100% - 8px);
+  left: 0;
+  right: 0;
+  max-height: 210px;
+  margin: 0;
+  padding: 6px;
+  overflow: auto;
+  border: 1px solid var(--ods-border);
+  border-radius: 8px;
+  background: var(--bg-card);
+  box-shadow: var(--ods-shadow-2);
+  list-style: none;
+}
+
+.autocomplete-options button {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+}
+
+.autocomplete-options button:hover {
+  background: rgba(24, 195, 232, 0.12);
+}
+
+.lesson-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 34px;
+}
+
+.lesson-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 6px 0 12px;
+  border-radius: 999px;
+  background: var(--ods-cyan);
+  color: #fff;
+  font-size: 0.86rem;
+  font-weight: 800;
+  box-shadow: 0 0 18px rgba(24, 195, 232, 0.28);
+}
+
+.lesson-chip button {
+  width: 24px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+.lesson-chip mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.cancel-button {
+  color: var(--text-secondary);
+  font-weight: 800;
+}
+
+.save-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent-gradient);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 800;
+  box-shadow: 0 14px 28px rgba(75, 20, 63, 0.22);
+}
+
+:host-context(.dark-theme) .user-modal {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(30, 30, 30, 0.92);
+}
+
+:host-context(.dark-theme) .modal-footer,
+:host-context(.dark-theme) .conditional-panel,
+:host-context(.dark-theme) .household-card,
+:host-context(.dark-theme) .autocomplete-options {
+  background: rgba(30, 30, 30, 0.9);
+}
+
+:host-context(.dark-theme) .input-field input,
+:host-context(.dark-theme) .input-field select {
+  color: var(--text-primary);
+}
+
+:host-context(.dark-theme) .input-field select option {
+  background: #1e1e1e;
+  color: var(--text-primary);
+}
+
+@media (max-width: 720px) {
+  .modal-backdrop {
+    padding: 0;
+  }
+
+  .user-modal {
+    width: 100%;
+    height: 100dvh;
+    max-height: none;
+    border-radius: 0;
+  }
+
+  .modal-header,
+  .modal-content,
+  .modal-footer {
+    padding-inline: 16px;
+  }
+
+  .modal-footer {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .save-button,
+  .cancel-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .conditional-panel {
+    padding: 14px;
+  }
+
+  .household-card {
+    padding: 52px 14px 0;
+  }
+}

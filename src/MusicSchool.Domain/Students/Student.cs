@@ -41,4 +41,16 @@ public sealed class Student : Entity<StudentId>
 
         return Result<Student>.Success(new Student(StudentId.New(), tenantId, userId, displayName.Trim(), birthDate));
     }
+
+    public Result UpdateProfile(string displayName, DateOnly? birthDate)
+    {
+        if (string.IsNullOrWhiteSpace(displayName) || displayName.Length > 200)
+        {
+            return Result.Failure(new Error("Student.DisplayNameInvalid", "Student display name is required and must not exceed 200 characters."));
+        }
+
+        DisplayName = displayName.Trim();
+        BirthDate = birthDate;
+        return Result.Success();
+    }
 }

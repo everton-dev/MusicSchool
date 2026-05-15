@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using MusicSchool.API.Auth;
 using MusicSchool.API.Contracts;
 using MusicSchool.Application.Abstractions;
@@ -59,9 +60,14 @@ public sealed class UsersController(
 
         var totalCount = await query.CountAsync(cancellationToken).ConfigureAwait(false);
         var users = await query.Skip(skip).Take(normalizedPageSize).ToListAsync(cancellationToken).ConfigureAwait(false);
+        var responses = new List<UserResponse>(users.Count);
+        foreach (var user in users)
+        {
+            responses.Add(await ToResponseAsync(user, autoStudentCreatedCount: 0, cancellationToken).ConfigureAwait(false));
+        }
 
         return Ok(new PagedResult<UserResponse>(
-            users.Select(ToResponse).ToArray(),
+            responses,
             normalizedPageNumber,
             normalizedPageSize,
             totalCount));
@@ -84,7 +90,7 @@ public sealed class UsersController(
 
         return user is null
             ? NotFound(new ApiErrorResponse("User.NotFound", "User was not found."))
-            : Ok(ToResponse(user));
+            : Ok(await ToResponseAsync(user, autoStudentCreatedCount: 0, cancellationToken).ConfigureAwait(false));
     }
 
     [HttpPost]
@@ -109,7 +115,9 @@ public sealed class UsersController(
             request.FullAddress,
             request.PostalCode,
             request.DocumentNumber,
-            request.ContactPhone);
+            request.ContactPhone,
+            request.DocType,
+            request.BirthDate);
 
         if (userResult.IsFailure)
         {
@@ -122,17 +130,28 @@ public sealed class UsersController(
             return ToActionResult(requiredDetailsResult);
         }
 
-        var duplicateEmail = await dbContext.Users.AnyAsync(
-            user => user.TenantId == tenantResult.Value && user.Email == userResult.Value.Email,
+        var duplicateResult = await EnsureNoDuplicateEmailsAsync(
+            tenantResult.Value,
+            mainUserId: null,
+            request,
             cancellationToken).ConfigureAwait(false);
-        if (duplicateEmail)
+        if (duplicateResult.IsFailure)
         {
-            return BadRequest(new ApiErrorResponse("User.EmailDuplicate", "A user with this email already exists."));
+            return ToActionResult(duplicateResult);
         }
 
+        await using var transaction = await BeginTransactionIfSupportedAsync(cancellationToken).ConfigureAwait(false);
         await dbContext.Users.AddAsync(userResult.Value, cancellationToken).ConfigureAwait(false);
-        await EnsureRoleProfileAsync(userResult.Value, needsStudentProfile: request.ScheduleSelection is not null, cancellationToken).ConfigureAwait(false);
-        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        var roleProfileResult = await EnsureRoleProfileAsync(
+            userResult.Value,
+            needsStudentProfile: request.IsStudent || request.ScheduleSelection is not null,
+            cancellationToken).ConfigureAwait(false);
+        if (roleProfileResult.IsFailure)
+        {
+            return ToActionResult(roleProfileResult);
+        }
+
+        var autoStudentCreatedCount = 0;
 
         if (request.Profile == UserRole.Guardian && request.HouseholdUserIds is { Count: > 0 })
         {
@@ -143,6 +162,32 @@ public sealed class UsersController(
             }
         }
 
+        if (request.Profile == UserRole.Guardian && request.HouseholdMembers is { Count: > 0 })
+        {
+            var householdMemberResult = await SyncHouseholdMembersAsync(
+                userResult.Value,
+                request.HouseholdMembers,
+                deactivateRemovedMembers: false,
+                cancellationToken).ConfigureAwait(false);
+            if (householdMemberResult.IsFailure)
+            {
+                return ToActionResult(householdMemberResult);
+            }
+
+            autoStudentCreatedCount = householdMemberResult.Value;
+        }
+
+        if (request.Profile == UserRole.Teacher)
+        {
+            var teacherLessonTypesResult = await SyncTeacherLessonTypesAsync(userResult.Value, request.LessonTypes, cancellationToken).ConfigureAwait(false);
+            if (teacherLessonTypesResult.IsFailure)
+            {
+                return ToActionResult(teacherLessonTypesResult);
+            }
+        }
+
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
         if (request.ScheduleSelection is not null)
         {
             var scheduleResult = await ScheduleUserLessonAsync(userResult.Value, request.ScheduleSelection, cancellationToken).ConfigureAwait(false);
@@ -152,7 +197,15 @@ public sealed class UsersController(
             }
         }
 
-        return CreatedAtAction(nameof(GetById), new { userId = userResult.Value.Id.Value }, ToResponse(userResult.Value));
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        return CreatedAtAction(
+            nameof(GetById),
+            new { userId = userResult.Value.Id.Value },
+            await ToResponseAsync(userResult.Value, autoStudentCreatedCount, cancellationToken).ConfigureAwait(false));
     }
 
     [HttpPut("{userId:guid}")]
@@ -175,14 +228,17 @@ public sealed class UsersController(
             return NotFound(new ApiErrorResponse("User.NotFound", "User was not found."));
         }
 
-        var duplicateEmail = await dbContext.Users.AnyAsync(
-            item => item.TenantId == tenantResult.Value && item.Id != user.Id && item.Email.Value == request.Email.Trim().ToLowerInvariant(),
+        var duplicateResult = await EnsureNoDuplicateEmailsAsync(
+            tenantResult.Value,
+            user.Id,
+            request,
             cancellationToken).ConfigureAwait(false);
-        if (duplicateEmail)
+        if (duplicateResult.IsFailure)
         {
-            return BadRequest(new ApiErrorResponse("User.EmailDuplicate", "A user with this email already exists."));
+            return ToActionResult(duplicateResult);
         }
 
+        await using var transaction = await BeginTransactionIfSupportedAsync(cancellationToken).ConfigureAwait(false);
         var updateResult = user.UpdateRegistration(
             request.Email,
             request.Name,
@@ -190,14 +246,24 @@ public sealed class UsersController(
             request.FullAddress,
             request.PostalCode,
             request.DocumentNumber,
-            request.ContactPhone);
+            request.ContactPhone,
+            request.DocType,
+            request.BirthDate);
         if (updateResult.IsFailure)
         {
             return ToActionResult(updateResult);
         }
 
-        await EnsureRoleProfileAsync(user, needsStudentProfile: request.ScheduleSelection is not null, cancellationToken).ConfigureAwait(false);
-        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        var roleProfileResult = await EnsureRoleProfileAsync(
+            user,
+            needsStudentProfile: request.IsStudent || request.ScheduleSelection is not null,
+            cancellationToken).ConfigureAwait(false);
+        if (roleProfileResult.IsFailure)
+        {
+            return ToActionResult(roleProfileResult);
+        }
+
+        var autoStudentCreatedCount = 0;
 
         if (request.Profile == UserRole.Guardian && request.HouseholdUserIds is { Count: > 0 })
         {
@@ -208,6 +274,32 @@ public sealed class UsersController(
             }
         }
 
+        if (request.Profile == UserRole.Guardian)
+        {
+            var householdMemberResult = await SyncHouseholdMembersAsync(
+                user,
+                request.HouseholdMembers ?? Array.Empty<HouseholdMemberRequest>(),
+                deactivateRemovedMembers: true,
+                cancellationToken).ConfigureAwait(false);
+            if (householdMemberResult.IsFailure)
+            {
+                return ToActionResult(householdMemberResult);
+            }
+
+            autoStudentCreatedCount = householdMemberResult.Value;
+        }
+
+        if (request.Profile == UserRole.Teacher)
+        {
+            var teacherLessonTypesResult = await SyncTeacherLessonTypesAsync(user, request.LessonTypes, cancellationToken).ConfigureAwait(false);
+            if (teacherLessonTypesResult.IsFailure)
+            {
+                return ToActionResult(teacherLessonTypesResult);
+            }
+        }
+
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
         if (request.ScheduleSelection is not null)
         {
             var scheduleResult = await ScheduleUserLessonAsync(user, request.ScheduleSelection, cancellationToken).ConfigureAwait(false);
@@ -217,7 +309,20 @@ public sealed class UsersController(
             }
         }
 
-        return Ok(ToResponse(user));
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        return Ok(await ToResponseAsync(user, autoStudentCreatedCount, cancellationToken).ConfigureAwait(false));
+    }
+
+    [HttpPatch("{userId:guid}/status")]
+    [ProducesResponseType<UserResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateStatus(Guid userId, UserStatusUpdateRequest request, CancellationToken cancellationToken)
+    {
+        return await SetUserStatusAsync(userId, request.IsActive, cancellationToken).ConfigureAwait(false);
     }
 
     [HttpPost("{userId:guid}/deactivate")]
@@ -225,24 +330,7 @@ public sealed class UsersController(
     [ProducesResponseType<ApiErrorResponse>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Deactivate(Guid userId, CancellationToken cancellationToken)
     {
-        var tenantResult = GetTenant();
-        if (tenantResult.IsFailure)
-        {
-            return ToActionResult(tenantResult);
-        }
-
-        var user = await dbContext.Users.SingleOrDefaultAsync(
-            item => item.Id == new UserId(userId) && item.TenantId == tenantResult.Value,
-            cancellationToken).ConfigureAwait(false);
-        if (user is null)
-        {
-            return NotFound(new ApiErrorResponse("User.NotFound", "User was not found."));
-        }
-
-        user.Deactivate();
-        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-
-        return Ok(ToResponse(user));
+        return await SetUserStatusAsync(userId, isActive: false, cancellationToken).ConfigureAwait(false);
     }
 
     [HttpPost("{guardianUserId:guid}/household-users")]
@@ -274,7 +362,8 @@ public sealed class UsersController(
             return ToActionResult(householdResult);
         }
 
-        return Ok(ToResponse(guardian));
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        return Ok(await ToResponseAsync(guardian, autoStudentCreatedCount: 0, cancellationToken).ConfigureAwait(false));
     }
 
     [HttpGet("teacher-schedule-options")]
@@ -371,6 +460,50 @@ public sealed class UsersController(
         return Ok(options);
     }
 
+    private async Task<IActionResult> SetUserStatusAsync(Guid userId, bool isActive, CancellationToken cancellationToken)
+    {
+        var tenantResult = GetTenant();
+        if (tenantResult.IsFailure)
+        {
+            return ToActionResult(tenantResult);
+        }
+
+        var user = await dbContext.Users.SingleOrDefaultAsync(
+            item => item.Id == new UserId(userId) && item.TenantId == tenantResult.Value,
+            cancellationToken).ConfigureAwait(false);
+        if (user is null)
+        {
+            return NotFound(new ApiErrorResponse("User.NotFound", "User was not found."));
+        }
+
+        await using var transaction = await BeginTransactionIfSupportedAsync(cancellationToken).ConfigureAwait(false);
+
+        if (isActive)
+        {
+            user.Activate();
+        }
+        else
+        {
+            user.Deactivate();
+            if (user.Role == UserRole.Guardian)
+            {
+                var linkedStudentUsers = await GetGuardianHouseholdUsersAsync(user, cancellationToken).ConfigureAwait(false);
+                foreach (var linkedStudentUser in linkedStudentUsers)
+                {
+                    linkedStudentUser.Deactivate();
+                }
+            }
+        }
+
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        return Ok(await ToResponseAsync(user, autoStudentCreatedCount: 0, cancellationToken).ConfigureAwait(false));
+    }
+
     private async Task<Result> EnsureRoleProfileAsync(AppUser user, bool needsStudentProfile, CancellationToken cancellationToken)
     {
         if (user.Role == UserRole.Student || needsStudentProfile)
@@ -410,13 +543,157 @@ public sealed class UsersController(
         return Result.Success();
     }
 
-    private async Task<Result> LinkHouseholdUsersAsync(AppUser guardian, IReadOnlyCollection<Guid> householdUserIds, CancellationToken cancellationToken)
+    private async Task<Result<int>> SyncHouseholdMembersAsync(
+        AppUser guardian,
+        IReadOnlyCollection<HouseholdMemberRequest> householdMembers,
+        bool deactivateRemovedMembers,
+        CancellationToken cancellationToken)
     {
         if (guardian.Role != UserRole.Guardian)
         {
-            return Result.Failure(new Error("Guardian.RoleRequired", "Only Guardian users can have household members."));
+            return Result<int>.Failure(new Error("Guardian.RoleRequired", "Only Guardian users can have household members."));
         }
 
+        var familyGroupResult = await EnsureFamilyGroupAsync(guardian, cancellationToken).ConfigureAwait(false);
+        if (familyGroupResult.IsFailure)
+        {
+            return Result<int>.Failure(familyGroupResult.Error);
+        }
+
+        var familyGroup = familyGroupResult.Value;
+        var retainedStudentIds = new List<StudentId>();
+        var createdCount = 0;
+
+        foreach (var member in householdMembers.Where(item => !string.IsNullOrWhiteSpace(item.Email)).DistinctBy(item => item.Email.Trim().ToLowerInvariant()))
+        {
+            if (member.UserId == guardian.Id.Value)
+            {
+                return Result<int>.Failure(new Error("HouseholdUser.Invalid", "Guardian cannot be linked as their own household student."));
+            }
+
+            var memberUser = await ResolveHouseholdMemberUserAsync(guardian, member, cancellationToken).ConfigureAwait(false);
+            if (memberUser.IsFailure)
+            {
+                return Result<int>.Failure(memberUser.Error);
+            }
+
+            if (memberUser.Value.Created)
+            {
+                createdCount++;
+            }
+
+            var studentResult = await EnsureStudentForUserAsync(memberUser.Value.User, cancellationToken).ConfigureAwait(false);
+            if (studentResult.IsFailure)
+            {
+                return Result<int>.Failure(studentResult.Error);
+            }
+
+            var updateStudentResult = studentResult.Value.UpdateProfile(member.Name, member.BirthDate);
+            if (updateStudentResult.IsFailure)
+            {
+                return Result<int>.Failure(updateStudentResult.Error);
+            }
+
+            retainedStudentIds.Add(studentResult.Value.Id);
+
+            if (familyGroup.Relationships.Any(relationship =>
+                    relationship.GuardianUserId == guardian.Id && relationship.StudentId == studentResult.Value.Id))
+            {
+                continue;
+            }
+
+            var relationshipResult = familyGroup.AddRelationship(
+                guardian.Id,
+                studentResult.Value.Id,
+                FamilyRelationshipKind.Guardian,
+                isPrimaryPayer: true);
+            if (relationshipResult.IsFailure)
+            {
+                return Result<int>.Failure(relationshipResult.Error);
+            }
+        }
+
+        if (deactivateRemovedMembers)
+        {
+            var removedStudentIds = familyGroup.RemoveRelationshipsNotIn(guardian.Id, retainedStudentIds);
+            if (removedStudentIds.Count > 0)
+            {
+                var removedStudents = await dbContext.Students
+                    .Where(student => student.TenantId == guardian.TenantId && removedStudentIds.Contains(student.Id))
+                    .ToListAsync(cancellationToken).ConfigureAwait(false);
+                var removedUserIds = removedStudents.Select(student => student.UserId).ToArray();
+                var removedUsers = await dbContext.Users
+                    .Where(user => user.TenantId == guardian.TenantId && removedUserIds.Contains(user.Id))
+                    .ToListAsync(cancellationToken).ConfigureAwait(false);
+
+                foreach (var removedUser in removedUsers)
+                {
+                    removedUser.Deactivate();
+                }
+            }
+        }
+
+        return Result<int>.Success(createdCount);
+    }
+
+    private async Task<Result> SyncTeacherLessonTypesAsync(
+        AppUser user,
+        IReadOnlyCollection<string>? lessonTypes,
+        CancellationToken cancellationToken)
+    {
+        if (lessonTypes is null || lessonTypes.Count == 0)
+        {
+            return Result.Success();
+        }
+
+        var teacher = await dbContext.Teachers
+            .Include(item => item.Instruments)
+            .SingleOrDefaultAsync(item => item.TenantId == user.TenantId && item.UserId == user.Id, cancellationToken)
+            .ConfigureAwait(false);
+        if (teacher is null)
+        {
+            return Result.Failure(new Error("Teacher.NotFound", "Teacher profile was not found."));
+        }
+
+        var normalizedLessonTypes = lessonTypes
+            .Where(item => !string.IsNullOrWhiteSpace(item))
+            .Select(item => item.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+        if (normalizedLessonTypes.Length == 0)
+        {
+            return Result.Success();
+        }
+
+        var existingInstruments = await dbContext.Instruments
+            .Where(instrument => instrument.TenantId == user.TenantId)
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+        var selectedInstrumentIds = new List<InstrumentId>();
+
+        foreach (var lessonType in normalizedLessonTypes)
+        {
+            var instrument = existingInstruments.FirstOrDefault(item => item.Name.Equals(lessonType, StringComparison.OrdinalIgnoreCase));
+            if (instrument is null)
+            {
+                var instrumentResult = Instrument.Create(user.TenantId, lessonType);
+                if (instrumentResult.IsFailure)
+                {
+                    return Result.Failure(instrumentResult.Error);
+                }
+
+                instrument = instrumentResult.Value;
+                existingInstruments.Add(instrument);
+                await dbContext.Instruments.AddAsync(instrument, cancellationToken).ConfigureAwait(false);
+            }
+
+            selectedInstrumentIds.Add(instrument.Id);
+        }
+
+        return teacher.ReplaceInstruments(selectedInstrumentIds);
+    }
+
+    private async Task<Result<FamilyGroup>> EnsureFamilyGroupAsync(AppUser guardian, CancellationToken cancellationToken)
+    {
         var familyGroup = await dbContext.FamilyGroups
             .Include(group => group.Relationships)
             .Where(group =>
@@ -425,17 +702,108 @@ public sealed class UsersController(
             .OrderBy(group => group.CreatedOnUtc)
             .FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
 
-        if (familyGroup is null)
+        if (familyGroup is not null)
         {
-            var familyResult = FamilyGroup.Create(guardian.TenantId, $"{guardian.DisplayName} household", clock.UtcNow);
-            if (familyResult.IsFailure)
+            return Result<FamilyGroup>.Success(familyGroup);
+        }
+
+        var familyResult = FamilyGroup.Create(guardian.TenantId, $"{guardian.DisplayName} household", clock.UtcNow);
+        if (familyResult.IsFailure)
+        {
+            return familyResult;
+        }
+
+        await dbContext.FamilyGroups.AddAsync(familyResult.Value, cancellationToken).ConfigureAwait(false);
+        return Result<FamilyGroup>.Success(familyResult.Value);
+    }
+
+    private async Task<Result<(AppUser User, bool Created)>> ResolveHouseholdMemberUserAsync(
+        AppUser guardian,
+        HouseholdMemberRequest member,
+        CancellationToken cancellationToken)
+    {
+        var emailResult = EmailAddress.Create(member.Email);
+        if (emailResult.IsFailure)
+        {
+            return Result<(AppUser User, bool Created)>.Failure(emailResult.Error);
+        }
+
+        AppUser? user = null;
+        if (member.UserId is { } memberUserId && memberUserId != Guid.Empty)
+        {
+            user = await dbContext.Users.SingleOrDefaultAsync(
+                item => item.Id == new UserId(memberUserId) && item.TenantId == guardian.TenantId,
+                cancellationToken).ConfigureAwait(false);
+            if (user is null)
             {
-                return familyResult;
+                return Result<(AppUser User, bool Created)>.Failure(new Error("HouseholdUser.NotFound", "Household user was not found."));
+            }
+        }
+        else
+        {
+            user = await dbContext.Users.SingleOrDefaultAsync(
+                item => item.TenantId == guardian.TenantId && item.Email == emailResult.Value,
+                cancellationToken).ConfigureAwait(false);
+        }
+
+        if (user is null)
+        {
+            var createUserResult = AppUser.Create(
+                guardian.TenantId,
+                member.Email,
+                member.Name,
+                UserRole.Student,
+                guardian.PreferredCulture,
+                clock.UtcNow,
+                guardian.FullAddress,
+                guardian.PostalCode,
+                member.DocumentNumber,
+                guardian.ContactPhone,
+                member.DocType,
+                member.BirthDate);
+            if (createUserResult.IsFailure)
+            {
+                return Result<(AppUser User, bool Created)>.Failure(createUserResult.Error);
             }
 
-            familyGroup = familyResult.Value;
-            await dbContext.FamilyGroups.AddAsync(familyGroup, cancellationToken).ConfigureAwait(false);
+            await dbContext.Users.AddAsync(createUserResult.Value, cancellationToken).ConfigureAwait(false);
+            return Result<(AppUser User, bool Created)>.Success((createUserResult.Value, true));
         }
+
+        if (user.Id == guardian.Id)
+        {
+            return Result<(AppUser User, bool Created)>.Failure(new Error("HouseholdUser.Invalid", "Guardian cannot be linked as their own household student."));
+        }
+
+        var updateResult = user.UpdateRegistration(
+            member.Email,
+            member.Name,
+            UserRole.Student,
+            user.FullAddress,
+            user.PostalCode,
+            member.DocumentNumber,
+            user.ContactPhone,
+            member.DocType,
+            member.BirthDate);
+        return updateResult.IsFailure
+            ? Result<(AppUser User, bool Created)>.Failure(updateResult.Error)
+            : Result<(AppUser User, bool Created)>.Success((user, false));
+    }
+
+    private async Task<Result> LinkHouseholdUsersAsync(AppUser guardian, IReadOnlyCollection<Guid> householdUserIds, CancellationToken cancellationToken)
+    {
+        if (guardian.Role != UserRole.Guardian)
+        {
+            return Result.Failure(new Error("Guardian.RoleRequired", "Only Guardian users can have household members."));
+        }
+
+        var familyGroupResult = await EnsureFamilyGroupAsync(guardian, cancellationToken).ConfigureAwait(false);
+        if (familyGroupResult.IsFailure)
+        {
+            return Result.Failure(familyGroupResult.Error);
+        }
+
+        var familyGroup = familyGroupResult.Value;
 
         foreach (var householdUserId in householdUserIds.Where(id => id != Guid.Empty).Distinct())
         {
@@ -470,7 +838,6 @@ public sealed class UsersController(
             }
         }
 
-        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return Result.Success();
     }
 
@@ -552,17 +919,159 @@ public sealed class UsersController(
             : BadRequest(response);
     }
 
-    private static UserResponse ToResponse(AppUser user)
+    private async Task<Result> EnsureNoDuplicateEmailsAsync(
+        TenantId tenantId,
+        UserId? mainUserId,
+        UserRegistrationRequest request,
+        CancellationToken cancellationToken)
     {
+        var mainEmailResult = EmailAddress.Create(request.Email);
+        if (mainEmailResult.IsFailure)
+        {
+            return Result.Failure(mainEmailResult.Error);
+        }
+
+        var mainEmailExists = await dbContext.Users.AnyAsync(
+            user =>
+                user.TenantId == tenantId &&
+                user.Email == mainEmailResult.Value &&
+                (!mainUserId.HasValue || user.Id != mainUserId.Value),
+            cancellationToken).ConfigureAwait(false);
+        if (mainEmailExists)
+        {
+            return Result.Failure(new Error("User.EmailDuplicate", "A user with this email already exists."));
+        }
+
+        var householdEmails = request.HouseholdMembers?
+            .Where(member => !string.IsNullOrWhiteSpace(member.Email))
+            .Select(member => member.Email.Trim().ToLowerInvariant())
+            .ToArray() ?? [];
+        if (householdEmails.Length != householdEmails.Distinct(StringComparer.OrdinalIgnoreCase).Count())
+        {
+            return Result.Failure(new Error("HouseholdUser.EmailDuplicate", "Household member emails must be unique."));
+        }
+
+        if (householdEmails.Contains(mainEmailResult.Value.Value, StringComparer.OrdinalIgnoreCase))
+        {
+            return Result.Failure(new Error("HouseholdUser.EmailDuplicate", "Guardian and household member emails must be different."));
+        }
+
+        return Result.Success();
+    }
+
+    private async Task<IReadOnlyCollection<AppUser>> GetGuardianHouseholdUsersAsync(AppUser guardian, CancellationToken cancellationToken)
+    {
+        var studentIds = await dbContext.FamilyRelationships
+            .Where(relationship => relationship.GuardianUserId == guardian.Id)
+            .Select(relationship => relationship.StudentId)
+            .Distinct()
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+        if (studentIds.Count == 0)
+        {
+            return Array.Empty<AppUser>();
+        }
+
+        var userIds = await dbContext.Students
+            .Where(student => student.TenantId == guardian.TenantId && studentIds.Contains(student.Id))
+            .Select(student => student.UserId)
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+        if (userIds.Count == 0)
+        {
+            return Array.Empty<AppUser>();
+        }
+
+        return await dbContext.Users
+            .Where(user => user.TenantId == guardian.TenantId && userIds.Contains(user.Id))
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task<IDbContextTransaction?> BeginTransactionIfSupportedAsync(CancellationToken cancellationToken)
+    {
+        return dbContext.Database.IsRelational()
+            ? await dbContext.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false)
+            : null;
+    }
+
+    private async Task<UserResponse> ToResponseAsync(AppUser user, int autoStudentCreatedCount, CancellationToken cancellationToken)
+    {
+        var householdMembers = user.Role == UserRole.Guardian
+            ? await GetHouseholdMemberResponsesAsync(user, cancellationToken).ConfigureAwait(false)
+            : Array.Empty<HouseholdMemberResponse>();
+        var lessonTypes = user.Role == UserRole.Teacher
+            ? await GetTeacherLessonTypesAsync(user, cancellationToken).ConfigureAwait(false)
+            : Array.Empty<string>();
+
         return new UserResponse(
             user.Id.Value,
             user.DisplayName,
             user.Role.ToString(),
             user.FullAddress,
             user.PostalCode,
+            user.DocumentType,
             user.DocumentNumber,
             user.ContactPhone,
             user.Email.Value,
-            user.IsActive);
+            user.BirthDate,
+            user.IsActive,
+            householdMembers,
+            lessonTypes,
+            autoStudentCreatedCount);
+    }
+
+    private async Task<IReadOnlyCollection<HouseholdMemberResponse>> GetHouseholdMemberResponsesAsync(AppUser guardian, CancellationToken cancellationToken)
+    {
+        var studentIds = await dbContext.FamilyRelationships
+            .Where(relationship => relationship.GuardianUserId == guardian.Id)
+            .Select(relationship => relationship.StudentId)
+            .Distinct()
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+        if (studentIds.Count == 0)
+        {
+            return Array.Empty<HouseholdMemberResponse>();
+        }
+
+        var students = await dbContext.Students
+            .Where(student => student.TenantId == guardian.TenantId && studentIds.Contains(student.Id))
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+        var studentUserIds = students.Select(student => student.UserId).ToArray();
+        var users = await dbContext.Users
+            .Where(user => user.TenantId == guardian.TenantId && studentUserIds.Contains(user.Id))
+            .ToDictionaryAsync(user => user.Id, cancellationToken).ConfigureAwait(false);
+
+        return students
+            .Where(student => users.ContainsKey(student.UserId))
+            .Select(student =>
+            {
+                var studentUser = users[student.UserId];
+                return new HouseholdMemberResponse(
+                    studentUser.Id.Value,
+                    studentUser.DisplayName,
+                    student.BirthDate ?? studentUser.BirthDate,
+                    studentUser.DocumentType,
+                    studentUser.DocumentNumber,
+                    studentUser.Email.Value,
+                    studentUser.IsActive);
+            })
+            .OrderBy(member => member.Name)
+            .ToArray();
+    }
+
+    private async Task<IReadOnlyCollection<string>> GetTeacherLessonTypesAsync(AppUser user, CancellationToken cancellationToken)
+    {
+        var teacher = await dbContext.Teachers
+            .Include(item => item.Instruments)
+            .SingleOrDefaultAsync(item => item.TenantId == user.TenantId && item.UserId == user.Id, cancellationToken)
+            .ConfigureAwait(false);
+        if (teacher is null || teacher.Instruments.Count == 0)
+        {
+            return Array.Empty<string>();
+        }
+
+        var instrumentIds = teacher.Instruments.Select(instrument => instrument.InstrumentId).ToArray();
+        return await dbContext.Instruments
+            .Where(instrument => instrument.TenantId == user.TenantId && instrumentIds.Contains(instrument.Id))
+            .OrderBy(instrument => instrument.Name)
+            .Select(instrument => instrument.Name)
+            .ToArrayAsync(cancellationToken).ConfigureAwait(false);
     }
 }

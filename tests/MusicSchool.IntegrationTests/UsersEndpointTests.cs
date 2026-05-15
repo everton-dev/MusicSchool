@@ -22,6 +22,87 @@ namespace MusicSchool.IntegrationTests;
 public sealed class UsersEndpointTests
 {
     [Fact]
+    public async Task CreateGuardian_WithHouseholdMembers_AutoCreatesLinkedStudentProfiles()
+    {
+        await using var factory = CreateFactory();
+        var seedData = await SeedAsync(factory);
+        using var client = factory.CreateAuthenticatedClient(UserRole.Admin, seedData.TenantId.Value);
+
+        var response = await client.PostAsJsonAsync("/api/users", new UserRegistrationRequest(
+            seedData.TenantId.Value,
+            "Miguel Guardian",
+            UserRole.Guardian,
+            "Avenida Central 44, Lisboa",
+            "1050-010",
+            "ID-20001",
+            "+351 910 000 002",
+            "miguel.auto@example.test",
+            HouseholdMembers:
+            [
+                new HouseholdMemberRequest(null, "Sofia Auto", new DateOnly(2014, 4, 12), "CC", "CC-100", "sofia.auto@example.test"),
+                new HouseholdMemberRequest(null, "Tiago Auto", new DateOnly(2016, 8, 3), "Passport", "P-200", "tiago.auto@example.test")
+            ]));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        var user = await response.Content.ReadFromJsonAsync<UserResponse>();
+        user.Should().NotBeNull();
+        user!.AutoStudentCreatedCount.Should().Be(2);
+        user.HouseholdMembers.Should().HaveCount(2);
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<MusicSchoolDbContext>();
+        var guardianId = new UserId(user.Id);
+        var studentUsers = await dbContext.Users
+            .Where(item => item.TenantId == seedData.TenantId && item.Role == UserRole.Student && item.Email.Value.EndsWith(".auto@example.test"))
+            .ToListAsync();
+        studentUsers.Should().HaveCount(2);
+
+        var studentUserIds = studentUsers.Select(item => item.Id).ToArray();
+        var studentIds = await dbContext.Students
+            .Where(student => student.TenantId == seedData.TenantId && studentUserIds.Contains(student.UserId))
+            .Select(student => student.Id)
+            .ToListAsync();
+        var relationships = await dbContext.FamilyRelationships
+            .Where(relationship => relationship.GuardianUserId == guardianId && studentIds.Contains(relationship.StudentId))
+            .ToListAsync();
+        relationships.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task UpdateStatus_WhenGuardianIsInactivated_CascadesToLinkedStudents()
+    {
+        await using var factory = CreateFactory();
+        var seedData = await SeedAsync(factory);
+        using var client = factory.CreateAuthenticatedClient(UserRole.Admin, seedData.TenantId.Value);
+
+        var createResponse = await client.PostAsJsonAsync("/api/users", new UserRegistrationRequest(
+            seedData.TenantId.Value,
+            "Miguel Guardian",
+            UserRole.Guardian,
+            "Avenida Central 44, Lisboa",
+            "1050-010",
+            "ID-20001",
+            "+351 910 000 002",
+            "miguel.status@example.test",
+            HouseholdMembers:
+            [
+                new HouseholdMemberRequest(null, "Sofia Status", new DateOnly(2014, 4, 12), "CC", "CC-100", "sofia.status@example.test")
+            ]));
+        createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+        var createdUser = await createResponse.Content.ReadFromJsonAsync<UserResponse>();
+
+        var statusResponse = await client.PatchAsJsonAsync($"/api/users/{createdUser!.Id}/status", new UserStatusUpdateRequest(false));
+
+        statusResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<MusicSchoolDbContext>();
+        var guardian = await dbContext.Users.SingleAsync(user => user.Id == new UserId(createdUser.Id));
+        var studentUser = await dbContext.Users.SingleAsync(user => user.Email.Value == "sofia.status@example.test");
+        guardian.IsActive.Should().BeFalse();
+        studentUser.IsActive.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task CreateGuardian_WithHouseholdAndSchedule_CreatesUserRelationshipAndLesson()
     {
         await using var factory = CreateFactory();

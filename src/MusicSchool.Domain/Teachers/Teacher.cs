@@ -18,6 +18,7 @@ public sealed class Teacher : Entity<TeacherId>
         TenantId = tenantId;
         UserId = userId;
         DisplayName = displayName;
+        IsAvailable = true;
     }
 
     public TenantId TenantId { get; private set; }
@@ -25,6 +26,10 @@ public sealed class Teacher : Entity<TeacherId>
     public UserId UserId { get; private set; }
 
     public string DisplayName { get; private set; }
+
+    public bool IsAvailable { get; private set; } = true;
+
+    public string? AbsenceReason { get; private set; }
 
     public IReadOnlyCollection<TeacherInstrument> Instruments => _instruments.AsReadOnly();
 
@@ -59,8 +64,47 @@ public sealed class Teacher : Entity<TeacherId>
         return Result.Success();
     }
 
+    public Result ReplaceInstruments(IEnumerable<InstrumentId> instrumentIds)
+    {
+        var distinctInstrumentIds = instrumentIds
+            .Where(instrumentId => instrumentId.Value != Guid.Empty)
+            .Distinct()
+            .ToArray();
+
+        if (distinctInstrumentIds.Length == 0)
+        {
+            return Result.Failure(new Error("TeacherInstrument.Required", "At least one lesson type is required for a teacher."));
+        }
+
+        _instruments.Clear();
+        foreach (var instrumentId in distinctInstrumentIds)
+        {
+            _instruments.Add(new TeacherInstrument(Id, instrumentId));
+        }
+
+        return Result.Success();
+    }
+
     public bool Teaches(InstrumentId instrumentId)
     {
         return _instruments.Any(instrument => instrument.InstrumentId == instrumentId);
+    }
+
+    public Result MarkUnavailable(string reason)
+    {
+        if (string.IsNullOrWhiteSpace(reason) || reason.Length > 300)
+        {
+            return Result.Failure(new Error("Teacher.AbsenceReasonInvalid", "Absence reason is required and must not exceed 300 characters."));
+        }
+
+        IsAvailable = false;
+        AbsenceReason = reason.Trim();
+        return Result.Success();
+    }
+
+    public void MarkAvailable()
+    {
+        IsAvailable = true;
+        AbsenceReason = null;
     }
 }

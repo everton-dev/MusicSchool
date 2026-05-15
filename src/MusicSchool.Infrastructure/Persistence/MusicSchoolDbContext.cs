@@ -20,6 +20,8 @@ public sealed class MusicSchoolDbContext(DbContextOptions<MusicSchoolDbContext> 
 
     public DbSet<Teacher> Teachers => Set<Teacher>();
 
+    public DbSet<TeacherPause> TeacherPauses => Set<TeacherPause>();
+
     public DbSet<Instrument> Instruments => Set<Instrument>();
 
     public DbSet<FamilyGroup> FamilyGroups => Set<FamilyGroup>();
@@ -39,6 +41,7 @@ public sealed class MusicSchoolDbContext(DbContextOptions<MusicSchoolDbContext> 
         ConfigureUsers(modelBuilder.Entity<User>());
         ConfigureStudents(modelBuilder.Entity<Student>());
         ConfigureTeachers(modelBuilder.Entity<Teacher>());
+        ConfigureTeacherPauses(modelBuilder.Entity<TeacherPause>());
         ConfigureTeacherInstruments(modelBuilder.Entity<TeacherInstrument>());
         ConfigureInstruments(modelBuilder.Entity<Instrument>());
         ConfigureFamilyGroups(modelBuilder.Entity<FamilyGroup>());
@@ -61,8 +64,10 @@ public sealed class MusicSchoolDbContext(DbContextOptions<MusicSchoolDbContext> 
         builder.Property(user => user.PreferredCulture).HasMaxLength(16).IsRequired();
         builder.Property(user => user.FullAddress).HasMaxLength(300).IsRequired();
         builder.Property(user => user.PostalCode).HasMaxLength(20).IsRequired();
+        builder.Property(user => user.DocumentType).HasMaxLength(32).IsRequired();
         builder.Property(user => user.DocumentNumber).HasMaxLength(80).IsRequired();
         builder.Property(user => user.ContactPhone).HasMaxLength(40).IsRequired();
+        builder.Property(user => user.BirthDate);
         builder.Property(user => user.IsActive).IsRequired();
         builder.Property(user => user.CreatedOnUtc).IsRequired();
         builder.HasIndex(user => new { user.TenantId, user.Email }).IsUnique();
@@ -77,6 +82,7 @@ public sealed class MusicSchoolDbContext(DbContextOptions<MusicSchoolDbContext> 
         builder.Property(student => student.UserId).HasConversion(id => id.Value, value => new UserId(value));
         builder.Property(student => student.DisplayName).HasMaxLength(200).IsRequired();
         builder.HasIndex(student => new { student.TenantId, student.UserId }).IsUnique();
+        builder.HasOne<User>().WithMany().HasForeignKey(student => student.UserId).OnDelete(DeleteBehavior.Restrict);
     }
 
     private static void ConfigureTeachers(EntityTypeBuilder<Teacher> builder)
@@ -87,9 +93,27 @@ public sealed class MusicSchoolDbContext(DbContextOptions<MusicSchoolDbContext> 
         builder.Property(teacher => teacher.TenantId).HasConversion(id => id.Value, value => new TenantId(value));
         builder.Property(teacher => teacher.UserId).HasConversion(id => id.Value, value => new UserId(value));
         builder.Property(teacher => teacher.DisplayName).HasMaxLength(200).IsRequired();
+        builder.Property(teacher => teacher.IsAvailable).IsRequired();
+        builder.Property(teacher => teacher.AbsenceReason).HasMaxLength(300);
         builder.HasIndex(teacher => new { teacher.TenantId, teacher.UserId }).IsUnique();
+        builder.HasOne<User>().WithMany().HasForeignKey(teacher => teacher.UserId).OnDelete(DeleteBehavior.Restrict);
         builder.HasMany(teacher => teacher.Instruments).WithOne().HasForeignKey(instrument => instrument.TeacherId);
         builder.Navigation(teacher => teacher.Instruments).UsePropertyAccessMode(PropertyAccessMode.Field);
+    }
+
+    private static void ConfigureTeacherPauses(EntityTypeBuilder<TeacherPause> builder)
+    {
+        builder.ToTable("TeacherPauses");
+        builder.HasKey(pause => pause.Id);
+        builder.Property(pause => pause.Id).HasConversion(id => id.Value, value => new TeacherPauseId(value)).ValueGeneratedNever();
+        builder.Property(pause => pause.TenantId).HasConversion(id => id.Value, value => new TenantId(value));
+        builder.Property(pause => pause.TeacherId).HasConversion(id => id.Value, value => new TeacherId(value));
+        builder.Property(pause => pause.Reason).HasMaxLength(300).IsRequired();
+        builder.Property(pause => pause.StartsOnUtc).IsRequired();
+        builder.Property(pause => pause.EndsOnUtc);
+        builder.Property(pause => pause.IsActive).IsRequired();
+        builder.HasOne<Teacher>().WithMany().HasForeignKey(pause => pause.TeacherId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasIndex(pause => new { pause.TenantId, pause.TeacherId, pause.IsActive });
     }
 
     private static void ConfigureInstruments(EntityTypeBuilder<Instrument> builder)
@@ -134,6 +158,8 @@ public sealed class MusicSchoolDbContext(DbContextOptions<MusicSchoolDbContext> 
         builder.Property(relationship => relationship.Kind).HasConversion<string>().HasMaxLength(32).IsRequired();
         builder.Property(relationship => relationship.IsPrimaryPayer).IsRequired();
         builder.HasIndex(relationship => new { relationship.FamilyGroupId, relationship.GuardianUserId, relationship.StudentId }).IsUnique();
+        builder.HasOne<User>().WithMany().HasForeignKey(relationship => relationship.GuardianUserId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Student>().WithMany().HasForeignKey(relationship => relationship.StudentId).OnDelete(DeleteBehavior.Restrict);
     }
 
     private static void ConfigureLessons(EntityTypeBuilder<Lesson> builder)
@@ -145,6 +171,7 @@ public sealed class MusicSchoolDbContext(DbContextOptions<MusicSchoolDbContext> 
         builder.Property(lesson => lesson.TeacherId).HasConversion(id => id.Value, value => new TeacherId(value));
         builder.Property(lesson => lesson.StudentId).HasConversion(id => id.Value, value => new StudentId(value));
         builder.Property(lesson => lesson.InstrumentId).HasConversion(id => id.Value, value => new InstrumentId(value));
+        builder.Property(lesson => lesson.RecurrenceRule).HasMaxLength(32).IsRequired();
         builder.Property(lesson => lesson.Status).HasConversion<string>().HasMaxLength(32).IsRequired();
         builder.Property(lesson => lesson.CreatedOnUtc).IsRequired();
         builder.Property(lesson => lesson.CancellationReason).HasMaxLength(500);

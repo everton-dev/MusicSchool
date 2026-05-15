@@ -58,8 +58,23 @@ export interface UserSummary {
   profile: UserProfile;
   fullAddress: string;
   postalCode: string;
+  docType: string;
   documentNumber: string;
   contactPhone: string;
+  email: string;
+  birthDate?: string;
+  isActive: boolean;
+  householdMembers: HouseholdMemberSummary[];
+  lessonTypes: string[];
+  autoStudentCreatedCount: number;
+}
+
+export interface HouseholdMemberSummary {
+  userId: string;
+  name: string;
+  birthDate?: string;
+  docType: string;
+  documentNumber: string;
   email: string;
   isActive: boolean;
 }
@@ -79,11 +94,25 @@ export interface UserRegistrationRequest {
   profile: UserProfile;
   fullAddress: string;
   postalCode: string;
+  docType: string;
   documentNumber: string;
   contactPhone: string;
   email: string;
+  birthDate?: string;
+  isStudent?: boolean;
   householdUserIds?: string[];
+  householdMembers?: HouseholdMemberRequest[];
+  lessonTypes?: string[];
   scheduleSelection?: UserScheduleSelection;
+}
+
+export interface HouseholdMemberRequest {
+  userId?: string;
+  name: string;
+  birthDate?: string;
+  docType: string;
+  documentNumber: string;
+  email: string;
 }
 
 export interface TeacherScheduleOption {
@@ -98,6 +127,73 @@ export interface TeacherScheduleOption {
   isTaken: boolean;
   assignedStudentId?: string;
   assignedStudentName?: string;
+}
+
+export interface TeacherSummary {
+  id: string;
+  userId: string;
+  name: string;
+  email: string;
+  lessonTypes: string[];
+  lessonTypeOptions: TeacherLessonTypeOption[];
+  isAvailable: boolean;
+  absenceReason?: string;
+}
+
+export interface TeacherLessonTypeOption {
+  instrumentId: string;
+  name: string;
+}
+
+export interface TeacherPauseRequest {
+  reason: string;
+}
+
+export interface TeacherPauseSummary {
+  id: string;
+  teacherId: string;
+  reason: string;
+  startsOnUtc: string;
+  endsOnUtc?: string;
+  isActive: boolean;
+}
+
+export interface TeacherScheduleLesson {
+  id: string;
+  studentId: string;
+  studentName: string;
+  instrumentId: string;
+  instrumentName: string;
+  dayOfWeek: number | string;
+  startTime: string;
+  endTime: string;
+  durationMinutes: number;
+  recurrenceRule: 'Weekly' | 'Daily' | string;
+  status: string;
+}
+
+export interface TeacherScheduleStudent {
+  studentId: string;
+  userId: string;
+  name: string;
+}
+
+export interface TeacherSchedule {
+  teacherId: string;
+  lessons: TeacherScheduleLesson[];
+  pauses: TeacherPauseSummary[];
+  students: TeacherScheduleStudent[];
+  billingUpdated: boolean;
+}
+
+export interface CreateTeacherScheduleLessonRequest {
+  tenantId: string;
+  studentId: string;
+  instrumentId: string;
+  dayOfWeek: number;
+  startTime: string;
+  durationMinutes: number;
+  recurrenceRule: 'Weekly' | 'Daily';
 }
 
 @Injectable({ providedIn: 'root' })
@@ -147,6 +243,10 @@ export class MusicSchoolApiService {
     return this.http.post<UserSummary>(`${this.apiBaseUrl}/api/users/${userId}/deactivate`, {});
   }
 
+  updateUserStatus(userId: string, isActive: boolean): Observable<UserSummary> {
+    return this.http.patch<UserSummary>(`${this.apiBaseUrl}/api/users/${userId}/status`, { isActive });
+  }
+
   addGuardianHouseholdUser(guardianUserId: string, householdUserId: string): Observable<UserSummary> {
     return this.http.post<UserSummary>(`${this.apiBaseUrl}/api/users/${guardianUserId}/household-users`, {
       householdUserId
@@ -157,6 +257,22 @@ export class MusicSchoolApiService {
     return this.http.get<TeacherScheduleOption[]>(`${this.apiBaseUrl}/api/users/teacher-schedule-options`, {
       params: new HttpParams().set('instrumentQuery', instrumentQuery)
     });
+  }
+
+  getTeachers(): Observable<TeacherSummary[]> {
+    return this.http.get<TeacherSummary[]>(`${this.apiBaseUrl}/api/teachers`);
+  }
+
+  pauseTeacher(teacherId: string, request: TeacherPauseRequest): Observable<TeacherPauseSummary> {
+    return this.http.post<TeacherPauseSummary>(`${this.apiBaseUrl}/api/teachers/${teacherId}/pause`, request);
+  }
+
+  getTeacherSchedule(teacherId: string): Observable<TeacherSchedule> {
+    return this.http.get<TeacherSchedule>(`${this.apiBaseUrl}/api/teachers/${teacherId}/schedule`);
+  }
+
+  createTeacherScheduleLesson(teacherId: string, request: CreateTeacherScheduleLessonRequest): Observable<TeacherSchedule> {
+    return this.http.post<TeacherSchedule>(`${this.apiBaseUrl}/api/teachers/${teacherId}/schedule`, request);
   }
 
   private pageParams(pageNumber: number, pageSize: number): HttpParams {

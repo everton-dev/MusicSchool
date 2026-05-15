@@ -17,6 +17,7 @@ public sealed class Lesson : Entity<LessonId>
         StudentId studentId,
         InstrumentId instrumentId,
         WeeklyLessonSchedule schedule,
+        string recurrenceRule,
         DateTimeOffset createdOnUtc)
         : base(id)
     {
@@ -25,6 +26,7 @@ public sealed class Lesson : Entity<LessonId>
         StudentId = studentId;
         InstrumentId = instrumentId;
         Schedule = schedule;
+        RecurrenceRule = recurrenceRule;
         Status = LessonStatus.Scheduled;
         CreatedOnUtc = createdOnUtc;
     }
@@ -38,6 +40,8 @@ public sealed class Lesson : Entity<LessonId>
     public InstrumentId InstrumentId { get; private set; }
 
     public WeeklyLessonSchedule Schedule { get; private set; }
+
+    public string RecurrenceRule { get; private set; } = "Weekly";
 
     public LessonStatus Status { get; private set; }
 
@@ -55,7 +59,8 @@ public sealed class Lesson : Entity<LessonId>
         StudentId studentId,
         InstrumentId instrumentId,
         WeeklyLessonSchedule schedule,
-        DateTimeOffset createdOnUtc)
+        DateTimeOffset createdOnUtc,
+        string recurrenceRule = "Weekly")
     {
         if (tenantId.Value == Guid.Empty ||
             teacherId.Value == Guid.Empty ||
@@ -70,7 +75,13 @@ public sealed class Lesson : Entity<LessonId>
             return Result<Lesson>.Failure(new Error("Time.NotUtc", "Created timestamp must be in UTC."));
         }
 
-        return Result<Lesson>.Success(new Lesson(LessonId.New(), tenantId, teacherId, studentId, instrumentId, schedule, createdOnUtc));
+        var normalizedRecurrence = string.IsNullOrWhiteSpace(recurrenceRule) ? "Weekly" : recurrenceRule.Trim();
+        if (normalizedRecurrence.Length > 32)
+        {
+            return Result<Lesson>.Failure(new Error("Lesson.RecurrenceInvalid", "Lesson recurrence must not exceed 32 characters."));
+        }
+
+        return Result<Lesson>.Success(new Lesson(LessonId.New(), tenantId, teacherId, studentId, instrumentId, schedule, normalizedRecurrence, createdOnUtc));
     }
 
     public Result Reschedule(WeeklyLessonSchedule newSchedule, DateTimeOffset changedOnUtc)

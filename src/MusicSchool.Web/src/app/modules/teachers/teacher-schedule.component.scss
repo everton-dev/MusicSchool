@@ -1,0 +1,166 @@
+.schedule-heading {
+  align-items: flex-start;
+}
+
+.offline-banner,
+.success-banner,
+.conflict-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-weight: 800;
+}
+
+.offline-banner {
+  border: 1px solid rgba(24, 195, 232, 0.2);
+  background: rgba(24, 195, 232, 0.1);
+  color: var(--ods-cyan);
+}
+
+.success-banner {
+  border: 1px solid rgba(15, 123, 85, 0.18);
+  background: var(--status-confirmed-bg);
+  color: var(--status-confirmed-text);
+}
+
+.conflict-banner {
+  border: 1px solid rgba(239, 51, 64, 0.18);
+  background: rgba(239, 51, 64, 0.1);
+  color: var(--ods-red);
+}
+
+.schedule-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.schedule-form {
+  min-height: 0;
+}
+
+.schedule-form h2,
+.calendar-panel h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+}
+
+.schedule-form label {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.schedule-form input,
+.schedule-form select {
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  border-bottom: 1px solid var(--ods-border);
+  outline: 0;
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.schedule-form input:focus,
+.schedule-form select:focus {
+  border-bottom-color: var(--ods-cyan);
+  box-shadow: 0 1px 0 0 var(--ods-cyan);
+}
+
+.schedule-save {
+  margin-top: 6px;
+  background: var(--accent-gradient);
+  color: #fff;
+}
+
+.calendar-panel {
+  min-height: 0;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pause-chip {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(239, 51, 64, 0.11);
+  color: var(--ods-red);
+  font-size: 0.74rem;
+  font-weight: 900;
+}
+
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(130px, 1fr));
+  gap: 10px;
+  overflow-x: auto;
+}
+
+.day-column {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-height: 420px;
+  padding: 12px;
+  border: 1px solid var(--ods-border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg-card) 88%, transparent);
+}
+
+.day-column h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  font-weight: 900;
+}
+
+.lesson-block {
+  display: grid;
+  gap: 3px;
+  padding: 10px;
+  border-left: 3px solid var(--ods-cyan);
+  border-radius: 8px;
+  background: rgba(24, 195, 232, 0.11);
+}
+
+.lesson-block strong,
+.lesson-block span,
+.lesson-block small {
+  color: var(--text-primary);
+}
+
+.empty-day {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+}
+
+:host-context(.dark-theme) .day-column,
+:host-context(.dark-theme) .lesson-block {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+:host-context(.dark-theme) .schedule-form select option {
+  background: #1e1e1e;
+  color: var(--text-primary);
+}
+
+@media (max-width: 1100px) {
+  .schedule-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .week-grid {
+    grid-template-columns: repeat(7, minmax(180px, 1fr));
+  }
+}

@@ -1,0 +1,254 @@
+<div class="modal-backdrop" (click)="cancel()">
+  <form class="modal modal-fixed-footer user-modal z-depth-3" [formGroup]="form" (ngSubmit)="save()" (click)="$event.stopPropagation()">
+    <header class="modal-header">
+      <div>
+        <span class="modal-eyebrow">Oficina do Som</span>
+        <h2>{{ (isEditMode ? 'USER.MODAL.EDIT_TITLE' : 'USER.MODAL.TITLE') | appTranslate }}</h2>
+      </div>
+      <button class="icon-button" type="button" [attr.aria-label]="'actions.cancel' | appTranslate" (click)="cancel()">
+        <mat-icon aria-hidden="true">close</mat-icon>
+      </button>
+    </header>
+
+    <div class="modal-content">
+      <section class="form-section">
+        <div class="section-title">
+          <mat-icon aria-hidden="true">badge</mat-icon>
+          <h3>{{ 'USER.SECTION.IDENTITY' | appTranslate }}</h3>
+        </div>
+
+        <div class="row compact-grid">
+          <div class="input-field col s12 m6">
+            <select formControlName="userType" id="userType">
+              @for (userType of userTypes; track userType) {
+                <option [value]="userType">{{ ('USER.TYPE.' + userType) | appTranslate }}</option>
+              }
+            </select>
+            <label class="active" for="userType">{{ 'USER.FIELD.TYPE' | appTranslate }}</label>
+            @if (fieldHasError('userType', 'required')) {
+              <small class="field-error">{{ 'ERROR.REQUIRED' | appTranslate }}</small>
+            }
+          </div>
+
+          <div class="input-field col s12 m6">
+            <input id="fullName" type="text" formControlName="fullName" autocomplete="name" />
+            <label class="active" for="fullName">{{ 'USER.FIELD.FULL_NAME' | appTranslate }}</label>
+            @if (fieldHasError('fullName', 'required')) {
+              <small class="field-error">{{ 'ERROR.REQUIRED' | appTranslate }}</small>
+            }
+          </div>
+
+          <div class="input-field col s12 m6">
+            <select formControlName="docType" id="docType">
+              @for (docType of docTypes; track docType) {
+                <option [value]="docType">{{ ('DOC.TYPE.' + docType) | appTranslate }}</option>
+              }
+            </select>
+            <label class="active" for="docType">{{ 'USER.FIELD.DOC_TYPE' | appTranslate }}</label>
+            @if (fieldHasError('docType', 'required')) {
+              <small class="field-error">{{ 'ERROR.REQUIRED' | appTranslate }}</small>
+            }
+          </div>
+
+          <div class="input-field col s12 m6">
+            <input id="docNumber" type="text" formControlName="docNumber" autocomplete="off" />
+            <label class="active" for="docNumber">{{ 'USER.FIELD.DOC_NUMBER' | appTranslate }}</label>
+            @if (fieldHasError('docNumber', 'required')) {
+              <small class="field-error">{{ 'ERROR.REQUIRED' | appTranslate }}</small>
+            }
+          </div>
+
+          <div class="input-field col s12 m6">
+            <input id="birthDate" type="date" formControlName="birthDate" />
+            <label class="active" for="birthDate">{{ 'USER.FIELD.BIRTH_DATE' | appTranslate }}</label>
+            @if (fieldHasError('birthDate', 'required')) {
+              <small class="field-error">{{ 'ERROR.REQUIRED' | appTranslate }}</small>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="section-title">
+          <mat-icon aria-hidden="true">contact_mail</mat-icon>
+          <h3>{{ 'USER.SECTION.CONTACT' | appTranslate }}</h3>
+        </div>
+
+        <div class="row compact-grid">
+          <div class="input-field col s12 m6">
+            <input id="email" type="email" formControlName="email" autocomplete="email" />
+            <label class="active" for="email">{{ 'USER.FIELD.EMAIL' | appTranslate }}</label>
+            @if (fieldHasError('email', 'required')) {
+              <small class="field-error">{{ 'ERROR.REQUIRED' | appTranslate }}</small>
+            }
+            @if (fieldHasError('email', 'email')) {
+              <small class="field-error">{{ 'ERROR.INVALID_EMAIL' | appTranslate }}</small>
+            }
+          </div>
+
+          <div class="input-field col s12 m6">
+            <input id="phone" type="tel" formControlName="phone" autocomplete="tel" />
+            <label class="active" for="phone">{{ 'USER.FIELD.PHONE' | appTranslate }}</label>
+            @if (fieldHasError('phone', 'required')) {
+              <small class="field-error">{{ 'ERROR.REQUIRED' | appTranslate }}</small>
+            }
+          </div>
+
+          <div class="input-field col s12 m6">
+            <input id="address" type="text" formControlName="address" autocomplete="street-address" />
+            <label class="active" for="address">{{ 'USER.FIELD.ADDRESS' | appTranslate }}</label>
+          </div>
+
+          <div class="input-field col s12 m6">
+            <input id="zipCode" type="text" formControlName="zipCode" autocomplete="postal-code" />
+            <label class="active" for="zipCode">{{ 'USER.FIELD.ZIP_CODE' | appTranslate }}</label>
+          </div>
+        </div>
+      </section>
+
+      @if (isGuardian && householdMembers; as members) {
+        <section class="form-section conditional-panel guardian-panel">
+          <div class="section-title">
+            <mat-icon aria-hidden="true">family_restroom</mat-icon>
+            <h3>{{ 'GUARDIAN.HOUSEHOLD' | appTranslate }}</h3>
+          </div>
+
+          @if (form.controls.isStudent; as isStudentControl) {
+            <label class="switch modern-switch">
+              <span>{{ 'GUARDIAN.IS_STUDENT' | appTranslate }}</span>
+              <input type="checkbox" [formControl]="isStudentControl" />
+              <span class="lever"></span>
+            </label>
+          }
+
+          <div class="household-list" formArrayName="householdMembers">
+            @for (member of members.controls; track member; let index = $index) {
+              <article class="household-card" [formGroupName]="index">
+                <button
+                  class="delete-member"
+                  type="button"
+                  [attr.aria-label]="'actions.delete' | appTranslate"
+                  (click)="removeMember(index)"
+                >
+                  <mat-icon aria-hidden="true">delete</mat-icon>
+                </button>
+
+                <div class="row compact-grid">
+                  <div class="input-field col s12 m6">
+                    <input [id]="'memberName' + index" type="text" formControlName="name" />
+                    <label class="active" [for]="'memberName' + index">{{ 'USER.FIELD.FULL_NAME' | appTranslate }}</label>
+                    @if (memberFieldHasError(index, 'name', 'required')) {
+                      <small class="field-error">{{ 'ERROR.REQUIRED' | appTranslate }}</small>
+                    }
+                  </div>
+
+                  <div class="input-field col s12 m6">
+                    <input [id]="'memberBirthDate' + index" type="date" formControlName="birthDate" />
+                    <label class="active" [for]="'memberBirthDate' + index">{{ 'USER.FIELD.BIRTH_DATE' | appTranslate }}</label>
+                    @if (memberFieldHasError(index, 'birthDate', 'required')) {
+                      <small class="field-error">{{ 'ERROR.REQUIRED' | appTranslate }}</small>
+                    }
+                  </div>
+
+                  <div class="input-field col s12 m6">
+                    <select [id]="'memberDocType' + index" formControlName="docType">
+                      @for (docType of docTypes; track docType) {
+                        <option [value]="docType">{{ ('DOC.TYPE.' + docType) | appTranslate }}</option>
+                      }
+                    </select>
+                    <label class="active" [for]="'memberDocType' + index">{{ 'USER.FIELD.DOC_TYPE' | appTranslate }}</label>
+                  </div>
+
+                  <div class="input-field col s12 m6">
+                    <input [id]="'memberDocNumber' + index" type="text" formControlName="docNumber" />
+                    <label class="active" [for]="'memberDocNumber' + index">{{ 'USER.FIELD.DOC_NUMBER' | appTranslate }}</label>
+                    @if (memberFieldHasError(index, 'docNumber', 'required')) {
+                      <small class="field-error">{{ 'ERROR.REQUIRED' | appTranslate }}</small>
+                    }
+                  </div>
+
+                  <div class="input-field col s12">
+                    <input [id]="'memberEmail' + index" type="email" formControlName="email" />
+                    <label class="active" [for]="'memberEmail' + index">{{ 'USER.FIELD.EMAIL' | appTranslate }}</label>
+                    @if (memberFieldHasError(index, 'email', 'required')) {
+                      <small class="field-error">{{ 'ERROR.REQUIRED' | appTranslate }}</small>
+                    }
+                    @if (memberFieldHasError(index, 'email', 'email')) {
+                      <small class="field-error">{{ 'ERROR.INVALID_EMAIL' | appTranslate }}</small>
+                    }
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+
+          <button class="add-member-button waves-effect" type="button" (click)="addMember()">
+            <mat-icon aria-hidden="true">person_add</mat-icon>
+            <span>{{ 'HOUSEHOLD.ADD' | appTranslate }}</span>
+          </button>
+        </section>
+      }
+
+      @if (isTeacher && lessonTypeInput; as lessonControl) {
+        <section class="form-section conditional-panel teacher-panel">
+          <div class="section-title">
+            <mat-icon aria-hidden="true">library_music</mat-icon>
+            <h3>{{ 'TEACHER.LESSONS' | appTranslate }}</h3>
+          </div>
+
+          <div class="autocomplete-shell">
+            <div class="input-field">
+              <input
+                id="lessonType"
+                type="text"
+                [formControl]="lessonControl"
+                autocomplete="off"
+                (focus)="showLessonOptions = true"
+                (blur)="commitLessonInput($event)"
+                (keydown.enter)="$event.preventDefault(); addLessonType(lessonControl.value)"
+              />
+              <label class="active" for="lessonType">{{ 'TEACHER.LESSON_INPUT' | appTranslate }}</label>
+            </div>
+
+            @if (showLessonOptions && filteredLessonTypes.length > 0) {
+              <ul class="autocomplete-options">
+                @for (lessonType of filteredLessonTypes; track lessonType) {
+                  <li>
+                    <button type="button" (mousedown)="$event.preventDefault()" (click)="addLessonType(lessonType)">
+                      {{ lessonType }}
+                    </button>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+
+          <div class="lesson-chips" aria-live="polite">
+            @for (lessonType of selectedLessonTypes; track lessonType) {
+              <span class="lesson-chip">
+                {{ lessonType }}
+                <button type="button" [attr.aria-label]="'TEACHER.REMOVE_LESSON' | appTranslate" (click)="removeLessonType(lessonType)">
+                  <mat-icon aria-hidden="true">close</mat-icon>
+                </button>
+              </span>
+            }
+          </div>
+
+          @if (form.controls.lessonTypes?.invalid && form.controls.lessonTypes?.touched) {
+            <small class="field-error">{{ 'ERROR.REQUIRED' | appTranslate }}</small>
+          }
+        </section>
+      }
+    </div>
+
+    <footer class="modal-footer">
+      <button class="btn-flat cancel-button" type="button" (click)="cancel()">
+        {{ 'actions.cancel' | appTranslate }}
+      </button>
+      <button class="btn save-button" type="submit">
+        <mat-icon aria-hidden="true">check</mat-icon>
+        <span>{{ 'actions.saveUser' | appTranslate }}</span>
+      </button>
+    </footer>
+  </form>
+</div>

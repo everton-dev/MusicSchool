@@ -1,0 +1,113 @@
+.offline-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border: 1px solid rgba(24, 195, 232, 0.2);
+  border-radius: 8px;
+  background: rgba(24, 195, 232, 0.1);
+  color: var(--ods-cyan);
+  font-weight: 800;
+}
+
+.teacher-card.unavailable {
+  opacity: 0.58;
+  filter: grayscale(0.8);
+}
+
+.leave-badge {
+  margin-left: auto;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(239, 51, 64, 0.11);
+  color: var(--ods-red);
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.absence-reason {
+  color: var(--ods-red);
+  font-weight: 800;
+}
+
+.pause-action {
+  margin-left: auto;
+  background: rgba(239, 51, 64, 0.1);
+  color: var(--ods-red);
+}
+
+.pause-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(13, 8, 16, 0.52);
+  backdrop-filter: blur(14px);
+}
+
+.pause-modal {
+  display: grid;
+  gap: 12px;
+  width: min(480px, 100%);
+  padding: 24px;
+  border: 1px solid var(--ods-border);
+  border-radius: 12px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.pause-modal > mat-icon {
+  color: var(--ods-red);
+}
+
+.pause-modal h2,
+.pause-modal p {
+  margin: 0;
+}
+
+.pause-modal label {
+  color: var(--text-secondary);
+  font-weight: 800;
+}
+
+.pause-modal textarea {
+  width: 100%;
+  min-height: 112px;
+  padding: 12px;
+  border: 1px solid var(--ods-border);
+  border-radius: 8px;
+  outline: 0;
+  background: transparent;
+  color: var(--text-primary);
+  resize: vertical;
+}
+
+.pause-modal textarea:focus {
+  border-color: var(--ods-cyan);
+  box-shadow: 0 0 0 3px rgba(24, 195, 232, 0.1);
+}
+
+.pause-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.pause-save {
+  background: linear-gradient(135deg, var(--ods-red), var(--ods-primary));
+  color: #fff;
+}
+
+:host-context(.dark-theme) .pause-modal {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(30, 30, 30, 0.94);
+}
+
+@media (max-width: 600px) {
+  .pause-actions {
+    display: grid;
+  }
+}
